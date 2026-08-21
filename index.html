@@ -273,11 +273,12 @@ main { padding: 12px 18px; }
 
 <header>
   <div>
-    <div class="logo">BCN1 · Mapa de Incidencias</div>
+    <div class="logo" id="fc-logo">BCN1 · Mapa de Incidencias</div>
     <div class="subtitle">Estado en tiempo real — Muelles, Plazas y Áreas</div>
   </div>
   <div class="clock" id="clock">--:--:--</div>
   <button class="reset-btn" onclick="confirmReset()">⟳ Reset</button>
+  <button class="add-fc-btn" onclick="openAddFC()">＋ Añadir FC ▾</button>
 </header>
 
 <div class="legend">
@@ -408,16 +409,13 @@ main { padding: 12px 18px; }
 </div>
 </div>
 
+<script src="config.js"></script>
+
 <script>
 // ══════════════════════════════════════════════════════════
-// CONFIG
+// MOTOR — no editar para cambiar de FC, usa config.js
 // ══════════════════════════════════════════════════════════
-const LINKS = {
-  CBRE:     { label: 'Workflow RME/CBRE',  url: 'https://river.amazon.com/BCN1/workflows?buildingType=fc&q0=8eddca34-afe4-48db-9206-b41529fa1349&q1=de867ca4-d11b-4e0b-ae4b-f3b801865c32&q2=ba57fb84-6d7a-4afb-89f4-b53b295ff79e&q3=e4bb11b9-c6b7-46ef-9b27-a23d2992628b&id=e4bb11b9-c6b7-46ef-9b27-a23d2992628b' },
-  EUROCERN: { label: 'TT EUROCERN',        url: 'https://t.corp.amazon.com/D499060453' },
-  IT:       { label: 'Ticket IT',          url: 'https://river.amazon.com/?org=it_help&q0=a74a3d48-56aa-4649-a1af-da4da42e5291' },
-  CHANGE:   { label: 'TT CHANGE',         url: 'https://t.corp.amazon.com/D513389296' },
-};
+const LINKS = FC_CONFIG.deptLinks;
 
 // Issue types → auto-route to dept
 const ISSUE_TYPES = [
@@ -449,20 +447,9 @@ const DEPT_META = {
 // ══════════════════════════════════════════════════════════
 // INFRA DINÁMICA — zonas editables
 // ══════════════════════════════════════════════════════════
-const INFRA_KEY = 'bcn1_infra_v1';
+const INFRA_KEY = (FC_CONFIG.name || 'fc') + '_infra_v1';
 
-const INFRA_DEFAULT = [
-  { label: 'Bumpers · Zona IB (107-124)',    ids: ['B·IB·1','B·IB·2','B·IB·3'] },
-  { label: 'Bumpers · Zona OB-A (125-149)',  ids: ['B·OB·A·1','B·OB·A·2','B·OB·A·3'] },
-  { label: 'Bumpers · Zona OB-B (150-175)',  ids: ['B·OB·B·1','B·OB·B·2','B·OB·B·3'] },
-  { label: 'Bumpers · Zona GH / Accesos',    ids: ['B·GH·1','B·GH·2'] },
-  { label: 'Quitamiedos · Zona IB',          ids: ['QM·IB·1','QM·IB·2'] },
-  { label: 'Quitamiedos · Zona OB-A',        ids: ['QM·OB·A·1','QM·OB·A·2'] },
-  { label: 'Quitamiedos · Zona OB-B',        ids: ['QM·OB·B·1','QM·OB·B·2'] },
-  { label: 'Quitamiedos · Zona GH / Rampas', ids: ['QM·GH·1','QM·GH·2'] },
-  { label: 'Calzada / Firme',  ids: ['VIA·IB','VIA·OB·A','VIA·OB·B','VIA·GH','VIA·RAMP'] },
-  { label: 'Señalización',     ids: ['SÑL·01','SÑL·02','SÑL·03'] },
-];
+const INFRA_DEFAULT = FC_CONFIG.infraDefault;
 
 function loadInfra() {
   try { return JSON.parse(localStorage.getItem(INFRA_KEY)) || INFRA_DEFAULT; }
@@ -531,7 +518,7 @@ function buildMap() {
   // ── Garitas GH ──
   const ghEl = document.getElementById('gh-map');
   [
-    { label: 'Garitas', ids: ['V0','V2'] },
+    { label: 'Garitas', ids: FC_CONFIG.garitas },
   ].forEach(row => {
     const div = document.createElement('div');
     div.className = 'btn-row';
@@ -543,18 +530,7 @@ function buildMap() {
   // ── Dock Doors ──
   const dockEl = document.getElementById('dock-map');
 
-  const dockRows = [
-    // SAYCA / RAMP
-    { label: 'RAMP/SAYCA', ids: ['DD300-RAMP','101-SAYCA','102-SAYCA','103-SAYCA','104-SAYCA','105-SAYCA','106-RAMP'] },
-    // IB doors
-    { label: 'IB', ids: ['IB107','IB108','IB109','IB110','IB111','IB112','IB113','IB114','IB115','IB116','IB117','IB118','IB119','IB120','IB121','IB122','IB123','IB124'] },
-    // OB 125–142
-    { label: 'OB 125–142', ids: ['OB125','OB126','OB127','OB128','OB129','OB130','OB131','OB132','OB133','OB134','OB135','OB136','OB137','OB138','OB139','OB140','OB141','OB142'] },
-    // OB 143–158
-    { label: 'OB 143–158', ids: ['OB143','OB144','OB145','OB146','OB147','OB148','OB149','OB150','OB151','OB152','OB153','OB154','OB155','OB156','OB157','OB158'] },
-    // OB 159–175 + RAMP
-    { label: 'OB 159–175', ids: ['OB159','OB160','OB161','OB162','OB163','OB164','OB165','OB166','OB167','OB168','OB169','OB170','OB171','OB172','OB173','174-SEMI','175-RAMP'] },
-  ];
+  const dockRows = FC_CONFIG.dockRows;
 
   dockRows.forEach(row => {
     const div = document.createElement('div');
@@ -567,12 +543,13 @@ function buildMap() {
   // ── Parking Slips ──
   const psEl = document.getElementById('ps-map');
   const psGroups = [];
-  for (let i = 0; i <= 112; i += 20) {
+  const psFrom = FC_CONFIG.psRange.from, psTo = FC_CONFIG.psRange.to;
+  for (let i = psFrom; i <= psTo; i += 20) {
     const ids = [];
-    for (let j = i; j < i + 20 && j <= 112; j++) {
+    for (let j = i; j < i + 20 && j <= psTo; j++) {
       ids.push('PS' + String(j).padStart(3, '0'));
     }
-    psGroups.push({ label: `PS${String(i).padStart(3,'0')}–${String(Math.min(i+19,112)).padStart(3,'0')}`, ids });
+    psGroups.push({ label: `PS${String(i).padStart(3,'0')}–${String(Math.min(i+19,psTo)).padStart(3,'0')}`, ids });
   }
   psGroups.forEach(row => {
     const div = document.createElement('div');
@@ -589,14 +566,14 @@ function buildMap() {
   // ── PRE / TP / Residuos ──
   const preEl = document.getElementById('pre-map');
   const preIds = [];
-  for (let i = 1; i <= 12; i++) preIds.push('PRE-' + String(i).padStart(3,'0'));
+  for (let i = FC_CONFIG.preRange.from; i <= FC_CONFIG.preRange.to; i++) preIds.push('PRE-' + String(i).padStart(3,'0'));
   const tpIds = [];
-  for (let i = 1; i <= 11; i++) tpIds.push('TP-' + String(i).padStart(2,'0'));
+  for (let i = FC_CONFIG.tpRange.from; i <= FC_CONFIG.tpRange.to; i++) tpIds.push('TP-' + String(i).padStart(2,'0'));
 
   [
     { label: 'PRE', ids: preIds },
     { label: 'TP',  ids: tpIds },
-    { label: 'OTROS', ids: ['RESIDUOS','NO-ASIGNADO'] },
+    { label: 'OTROS', ids: FC_CONFIG.otherSlips },
   ].forEach(row => {
     const div = document.createElement('div');
     div.className = 'btn-row';
@@ -618,8 +595,8 @@ function makeBtn(id) {
 // ══════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════
-const SK = 'bcn1_state_v2';
-const LK = 'bcn1_log_v2';
+const SK = (FC_CONFIG.name || 'fc') + '_state_v2';
+const LK = (FC_CONFIG.name || 'fc') + '_log_v2';
 
 function loadState() { try { return JSON.parse(localStorage.getItem(SK)) || {}; } catch { return {}; } }
 function saveState()  { localStorage.setItem(SK, JSON.stringify(state)); }
@@ -929,7 +906,7 @@ function closeModal() {
   curId = null; curIssueId = null;
 }
 function overlayClick(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeAddFC(); } });
 
 // ══════════════════════════════════════════════════════════
 // CLOCK
@@ -957,6 +934,9 @@ function clearLog() {
 // ══════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════
+// Aplicar nombre FC desde config
+document.getElementById('fc-logo').textContent = FC_CONFIG.name + ' · Mapa de Incidencias';
+
 buildMap();
 renderAll();
 renderLog();

@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BCN1 — Mapa de Incidencias</title>
+<style>
+:root {
+  --green:   #1a7a3c;
+  --green-h: #22a050;
+  --red:     #c0392b;
+  --red-h:   #e74c3c;
+  --amber:   #b8720a;
+  --amber-h: #e08c0e;
+  --bg:      #0f1923;
+  --surface: #1a2633;
+  --surf2:   #1e2e3e;
+  --surf3:   #243447;
+  --border:  #2e4057;
+  --text:    #e8ecf0;
+  --muted:   #7a92a6;
+  --orange:  #ff9900;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 12px; }
+
+/* HEADER */
+header {
+  background: #131921;
+  border-bottom: 2px solid var(--orange);
+  padding: 10px 20px;
+  display: flex; align-items: center; gap: 14px;
+}
+.logo { font-size: 18px; font-weight: 700; color: var(--orange); }
+.subtitle { font-size: 11px; color: var(--muted); }
+.clock { margin-left: auto; font-size: 15px; font-weight: 700; color: var(--orange); font-variant-numeric: tabular-nums; }
+
+/* LEGEND */
+.legend {
+  display: flex; gap: 18px; padding: 7px 20px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  align-items: center; flex-wrap: wrap;
+}
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; }
+.dot { width: 11px; height: 11px; border-radius: 2px; }
+.dot-g { background: var(--green-h); }
+.dot-r { background: var(--red-h); }
+.dot-a { background: var(--amber-h); }
+.tt-count { margin-left: auto; font-size: 11px; }
+.tt-count span { font-weight: 700; color: var(--red-h); }
+
+/* SUMMARY */
+.summary {
+  display: flex; gap: 10px; padding: 10px 20px;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.s-card {
+  padding: 6px 16px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--surface);
+  display: flex; align-items: center; gap: 8px;
+}
+.s-num { font-size: 22px; font-weight: 700; }
+.s-lbl { font-size: 10px; color: var(--muted); line-height: 1.3; }
+.s-ok .s-num  { color: var(--green-h); }
+.s-red .s-num { color: var(--red-h); }
+.s-amb .s-num { color: var(--amber-h); }
+
+/* MAIN */
+main { padding: 12px 18px; }
+
+/* SECTION LABEL */
+.sec-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  color: var(--muted); text-transform: uppercase;
+  border-left: 3px solid var(--orange); padding-left: 7px;
+  margin: 12px 0 6px;
+}
+
+/* MAP WRAPPER */
+.map-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px; margin-bottom: 8px;
+  overflow-x: auto;
+}
+
+/* ROW of buttons */
+.btn-row { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+.row-label {
+  font-size: 9px; color: var(--muted); letter-spacing: 1px;
+  text-transform: uppercase; min-width: 36px; padding-top: 6px;
+  flex-shrink: 0;
+}
+
+/* LOCATION BUTTON */
+.loc-btn {
+  padding: 4px 5px;
+  border: 1.5px solid;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  transition: all 0.15s;
+  min-width: 38px;
+  display: flex; flex-direction: column; align-items: center;
+  position: relative;
+}
+.loc-btn .loc-name { font-size: 9px; white-space: nowrap; }
+.loc-btn .loc-issue {
+  font-size: 8px; font-weight: 400; opacity: 0.9;
+  white-space: nowrap; overflow: hidden; max-width: 52px;
+  text-overflow: ellipsis;
+}
+
+/* States */
+.loc-btn.s-ok {
+  background: var(--green); color: #fff;
+  border-color: var(--green-h);
+}
+.loc-btn.s-ok:hover { background: var(--green-h); transform: translateY(-1px); }
+
+.loc-btn.s-open {
+  background: var(--red); color: #fff;
+  border-color: var(--red-h);
+  animation: pulse 2s infinite;
+}
+.loc-btn.s-open:hover { background: var(--red-h); animation: none; transform: translateY(-1px); }
+
+.loc-btn.s-tracking {
+  background: var(--amber); color: #fff;
+  border-color: var(--amber-h);
+}
+.loc-btn.s-tracking:hover { background: var(--amber-h); transform: translateY(-1px); }
+
+/* Big buttons (depts) */
+.dept-btn-big {
+  min-width: 80px; padding: 10px 8px; font-size: 11px;
+}
+
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(231,76,60,0.4); }
+  50%      { box-shadow: 0 0 0 5px rgba(231,76,60,0); }
+}
+
+/* TOOLTIP on hover for open issues */
+.loc-btn[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%);
+  background: #111; color: #fff; border-radius: 4px;
+  padding: 4px 8px; font-size: 10px; white-space: nowrap;
+  z-index: 50; pointer-events: none;
+  border: 1px solid var(--border);
+}
+
+/* MODAL */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8); z-index: 100;
+  align-items: center; justify-content: center;
+}
+.overlay.show { display: flex; }
+.modal {
+  background: var(--surf2); border: 1px solid var(--border);
+  border-radius: 10px; width: 440px; max-width: 96vw;
+  padding: 24px; box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+}
+.modal-loc {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.badge {
+  padding: 5px 12px; border-radius: 5px;
+  font-size: 15px; font-weight: 700;
+}
+.badge.s-ok       { background: var(--green);   color: #fff; }
+.badge.s-open     { background: var(--red);     color: #fff; }
+.badge.s-tracking { background: var(--amber);   color: #fff; }
+.modal-locname { font-size: 17px; font-weight: 700; }
+.modal-section { font-size: 11px; color: var(--muted); }
+
+.modal-status-box {
+  background: var(--surf3); border-radius: 6px;
+  padding: 10px 12px; margin-bottom: 14px; font-size: 12px;
+  color: var(--muted);
+}
+.modal-status-box strong { color: var(--text); }
+
+.modal-sep { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+
+/* Issue type selector */
+.issue-selector { margin-bottom: 14px; }
+.issue-selector label {
+  display: block; font-size: 11px; color: var(--muted);
+  margin-bottom: 5px; font-weight: 700; letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.issue-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.issue-type-btn {
+  padding: 8px 6px; border: 1.5px solid var(--border);
+  border-radius: 5px; background: var(--surf3);
+  color: var(--muted); cursor: pointer; font-size: 11px;
+  text-align: center; transition: all 0.15s; line-height: 1.3;
+}
+.issue-type-btn:hover { border-color: var(--orange); color: var(--text); }
+.issue-type-btn.selected {
+  border-color: var(--orange); background: rgba(255,153,0,0.12);
+  color: var(--text); font-weight: 700;
+}
+
+/* Description */
+.desc-input {
+  width: 100%; padding: 8px 10px;
+  background: var(--surf3); border: 1px solid var(--border);
+  border-radius: 5px; color: var(--text); font-size: 12px;
+  resize: none; margin-bottom: 14px;
+}
+.desc-input:focus { outline: none; border-color: var(--orange); }
+
+/* Action buttons */
+.action-btns { display: flex; flex-direction: column; gap: 8px; }
+.abtn {
+  padding: 11px; border: none; border-radius: 6px;
+  cursor: pointer; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  transition: all 0.15s; width: 100%;
+}
+.abtn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.abtn-orange { background: var(--orange); color: #111; }
+.abtn-red    { background: var(--red);    color: #fff; }
+.abtn-amber  { background: var(--amber);  color: #fff; }
+.abtn-green  { background: var(--green);  color: #fff; }
+.abtn-ghost  { background: var(--surf3);  color: var(--muted); border: 1px solid var(--border); }
+.abtn-ghost:hover { color: var(--text); }
+
+/* LOG */
+.log-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 16px; margin-top: 10px;
+}
+.log-box h4 {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--muted);
+  border-left: 3px solid var(--orange); padding-left: 7px; margin-bottom: 8px;
+}
+.log-list { max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.log-row {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 5px 8px; border-radius: 4px;
+  background: var(--surf2); font-size: 11px;
+}
+.log-row.l-open    { border-left: 3px solid var(--red-h); }
+.log-row.l-resolve { border-left: 3px solid var(--green-h); }
+.log-row.l-track   { border-left: 3px solid var(--amber-h); }
+.log-time { color: var(--muted); min-width: 58px; }
+.log-loc  { font-weight: 700; min-width: 72px; }
+.log-act  { color: var(--muted); }
+.log-iss  { color: var(--orange); font-size: 10px; }
+
+/* SCROLL */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.reset-btn {
+  padding: 4px 12px; background: transparent;
+  border: 1px solid var(--border); color: var(--muted);
+  border-radius: 4px; cursor: pointer; font-size: 10px;
+}
+.reset-btn:hover { color: var(--red-h); border-color: var(--red-h); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">BCN1 · Mapa de Incidencias</div>
+    <div class="subtitle">Estado en tiempo real — Muelles, Plazas y Áreas</div>
+  </div>
+  <div class="clock" id="clock">--:--:--</div>
+  <button class="reset-btn" onclick="confirmReset()">⟳ Reset</button>
+</header>
+
+<div class="legend">
+  <div class="leg"><div class="dot dot-g"></div> Sin incidencia</div>
+  <div class="leg"><div class="dot dot-r"></div> TT abierto (activo)</div>
+  <div class="leg"><div class="dot dot-a"></div> En seguimiento</div>
+  <div class="tt-count" id="tt-count">TTs activos: <span>0</span></div>
+</div>
+
+<div class="summary">
+  <div class="s-card s-ok">
+    <div class="s-num" id="c-ok">0</div>
+    <div class="s-lbl">Sin<br>incidencia</div>
+  </div>
+  <div class="s-card s-red">
+    <div class="s-num" id="c-open">0</div>
+    <div class="s-lbl">TTs<br>abiertos</div>
+  </div>
+  <div class="s-card s-amb">
+    <div class="s-num" id="c-track">0</div>
+    <div class="s-lbl">En<br>seguimiento</div>
+  </div>
+</div>
+
+<main>
+
+<!-- ── DEPT BUTTONS ───────────────────────────────────────── -->
+<div class="sec-label">Departamentos de soporte</div>
+<div class="map-box">
+  <div class="btn-row">
+    <button class="loc-btn dept-btn-big s-ok" id="btn-CBRE"     onclick="openModal('CBRE')">
+      <span class="loc-name">CBRE / RME</span><span class="loc-issue" id="iss-CBRE"></span>
+    </button>
+    <button class="loc-btn dept-btn-big s-ok" id="btn-EUROCERN" onclick="openModal('EUROCERN')">
+      <span class="loc-name">EUROCERN</span><span class="loc-issue" id="iss-EUROCERN"></span>
+    </button>
+    <button class="loc-btn dept-btn-big s-ok" id="btn-IT"       onclick="openModal('IT')">
+      <span class="loc-name">IT</span><span class="loc-issue" id="iss-IT"></span>
+    </button>
+    <button class="loc-btn dept-btn-big s-ok" id="btn-CHANGE"   onclick="openModal('CHANGE')">
+      <span class="loc-name">CHANGE</span><span class="loc-issue" id="iss-CHANGE"></span>
+    </button>
+
+  </div>
+</div>
+
+<!-- ── GARITAS GH ────────────────────────────────────────────── -->
+<div class="sec-label">Garitas de Trabajo — GH</div>
+<div class="map-box" id="gh-map"></div>
+
+<!-- ── DOCK DOORS ─────────────────────────────────────────── -->
+<div class="sec-label">Muelles — Dock Doors</div>
+<div class="map-box" id="dock-map"></div>
+
+<!-- ── PARKING SLIPS ──────────────────────────────────────── -->
+<div class="sec-label">Plazas — Parking Slips</div>
+<div class="map-box" id="ps-map"></div>
+
+<!-- ── PRE / TP / OTHERS ──────────────────────────────────── -->
+<div class="sec-label">Zonas PRE · TP · Residuos</div>
+<div class="map-box" id="pre-map"></div>
+
+<!-- ── BUMPERS E INFRAESTRUCTURA ───────────────────────────── -->
+<div class="sec-label">Bumpers e Infraestructura</div>
+<div class="map-box" id="infra-map"></div>
+
+<!-- LOG -->
+<div class="log-box">
+  <h4>Registro de actividad
+    <button class="reset-btn" onclick="clearLog()" style="margin-left:8px;display:inline;">Limpiar</button>
+  </h4>
+  <div class="log-list" id="log-list">
+    <div style="color:var(--muted);padding:4px 8px;">Sin actividad.</div>
+  </div>
+</div>
+
+</main>
+
+<!-- ── MODAL ──────────────────────────────────────────────── -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+<div class="modal" id="modal">
+
+  <div class="modal-loc">
+    <div class="badge s-ok" id="m-badge">OB125</div>
+    <div>
+      <div class="modal-locname" id="m-name">Muelle OB125</div>
+      <div class="modal-section" id="m-section">Zona OB</div>
+    </div>
+  </div>
+
+  <div class="modal-status-box" id="m-statusbox">
+    Estado: <strong id="m-statuslbl">Sin incidencia</strong>
+    <span id="m-issuedesc" style="margin-left:8px;color:var(--orange);"></span>
+  </div>
+
+  <!-- Issue type (visible when reporting) -->
+  <div class="issue-selector" id="issue-selector" style="display:none;">
+    <label>Tipo de incidencia</label>
+    <div class="issue-type-grid" id="issue-type-grid"></div>
+  </div>
+
+  <!-- Description -->
+  <textarea class="desc-input" id="m-desc" rows="2"
+    placeholder="Descripción breve (ej: calzo no funciona, no sube el plato...)"
+    style="display:none;"></textarea>
+
+  <!-- TT link input -->
+  <div id="ttlink-wrap" style="display:none;margin-bottom:14px;">
+    <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;">
+      Link del TT (para que todos puedan consultarlo)
+    </label>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <input id="m-ttlink" type="url"
+        placeholder="Pega aquí el link del TT abierto..."
+        style="flex:1;padding:8px 10px;background:var(--surf3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;"
+        oninput="onTTLinkInput()" />
+      <button onclick="saveTTLinkOnly()" title="Guardar link"
+        style="padding:7px 10px;background:var(--orange);border:none;border-radius:5px;cursor:pointer;font-size:13px;">💾</button>
+    </div>
+    <div id="m-ttlink-preview" style="margin-top:6px;display:none;">
+      <a id="m-ttlink-href" href="#" target="_blank"
+        style="font-size:11px;color:var(--orange);word-break:break-all;">— ver TT →</a>
+    </div>
+  </div>
+
+  <div class="action-btns" id="m-actions"></div>
+
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════════
+const LINKS = {
+  CBRE:     { label: 'Workflow RME/CBRE',  url: 'https://river.amazon.com/BCN1/workflows?buildingType=fc&q0=8eddca34-afe4-48db-9206-b41529fa1349&q1=de867ca4-d11b-4e0b-ae4b-f3b801865c32&q2=ba57fb84-6d7a-4afb-89f4-b53b295ff79e&q3=e4bb11b9-c6b7-46ef-9b27-a23d2992628b&id=e4bb11b9-c6b7-46ef-9b27-a23d2992628b' },
+  EUROCERN: { label: 'TT EUROCERN',        url: 'https://t.corp.amazon.com/D499060453' },
+  IT:       { label: 'Ticket IT',          url: 'https://river.amazon.com/?org=it_help&q0=a74a3d48-56aa-4649-a1af-da4da42e5291' },
+  CHANGE:   { label: 'TT CHANGE',         url: 'https://t.corp.amazon.com/D513389296' },
+};
+
+// Issue types → auto-route to dept
+const ISSUE_TYPES = [
+  { id: 'calzo',      label: '🔩 Calzo / Dock leveler',  dept: 'CBRE' },
+  { id: 'electrico',  label: '⚡ Eléctrico / Puerta',    dept: 'CBRE' },
+  { id: 'mecanico',   label: '🔧 Mecánico general',       dept: 'CBRE' },
+  { id: 'bumper',     label: '🛑 Bumper dañado',          dept: 'CBRE' },
+  { id: 'quitamiedos',label: '🚧 Quitamiedos roto',       dept: 'CBRE' },
+  { id: 'calzada',    label: '🛣️ Calzada / Firme',        dept: 'CBRE' },
+  { id: 'senyal',     label: '⚠️ Señalización / Marca',   dept: 'CBRE' },
+  { id: 'it',         label: '💻 IT / Sistema / Red',     dept: 'IT'   },
+  { id: 'acceso',     label: '🔒 Acceso / CCTV',          dept: 'EUROCERN' },
+  { id: 'cambio',     label: '📋 Cambio / Otro',          dept: 'CHANGE' },
+];
+
+// Dept-only locations (no issue-type routing, direct link)
+const DEPT_LOCS = new Set(['CBRE','EUROCERN','IT','CHANGE']);
+
+const DEPT_META = {
+  CBRE:     { name: 'CBRE / RME',   section: 'Facilities / Mantenimiento' },
+  EUROCERN: { name: 'EUROCERN',     section: 'Seguridad / Control de accesos' },
+  IT:       { name: 'IT',           section: 'Soporte Tecnológico' },
+  CHANGE:   { name: 'CHANGE',       section: 'Gestión de Cambios' },
+};
+
+// ══════════════════════════════════════════════════════════
+// BUILD DOCK MAP
+// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+// INFRA DINÁMICA — zonas editables
+// ══════════════════════════════════════════════════════════
+const INFRA_KEY = 'bcn1_infra_v1';
+
+const INFRA_DEFAULT = [
+  { label: 'Bumpers · Zona IB (107-124)',    ids: ['B·IB·1','B·IB·2','B·IB·3'] },
+  { label: 'Bumpers · Zona OB-A (125-149)',  ids: ['B·OB·A·1','B·OB·A·2','B·OB·A·3'] },
+  { label: 'Bumpers · Zona OB-B (150-175)',  ids: ['B·OB·B·1','B·OB·B·2','B·OB·B·3'] },
+  { label: 'Bumpers · Zona GH / Accesos',    ids: ['B·GH·1','B·GH·2'] },
+  { label: 'Quitamiedos · Zona IB',          ids: ['QM·IB·1','QM·IB·2'] },
+  { label: 'Quitamiedos · Zona OB-A',        ids: ['QM·OB·A·1','QM·OB·A·2'] },
+  { label: 'Quitamiedos · Zona OB-B',        ids: ['QM·OB·B·1','QM·OB·B·2'] },
+  { label: 'Quitamiedos · Zona GH / Rampas', ids: ['QM·GH·1','QM·GH·2'] },
+  { label: 'Calzada / Firme',  ids: ['VIA·IB','VIA·OB·A','VIA·OB·B','VIA·GH','VIA·RAMP'] },
+  { label: 'Señalización',     ids: ['SÑL·01','SÑL·02','SÑL·03'] },
+];
+
+function loadInfra() {
+  try { return JSON.parse(localStorage.getItem(INFRA_KEY)) || INFRA_DEFAULT; }
+  catch { return INFRA_DEFAULT; }
+}
+function saveInfra(data) { localStorage.setItem(INFRA_KEY, JSON.stringify(data)); }
+
+function buildInfraSection(container) {
+  container.innerHTML = '';
+  const infra = loadInfra();
+  infra.forEach((row, rowIdx) => {
+    const div = document.createElement('div');
+    div.className = 'btn-row';
+    div.dataset.rowIdx = rowIdx;
+    div.innerHTML = `<div class="row-label" title="${row.label}">${row.label}</div>`;
+    row.ids.forEach(id => div.appendChild(makeInfraBtn(id, rowIdx)));
+    // Botón + añadir
+    const addBtn = document.createElement('button');
+    addBtn.className = 'infra-add-btn';
+    addBtn.textContent = '+ añadir';
+    addBtn.onclick = () => addInfraItem(rowIdx);
+    div.appendChild(addBtn);
+    container.appendChild(div);
+  });
+}
+
+function makeInfraBtn(id, rowIdx) {
+  const btn = makeBtn(id);
+  btn.dataset.infraRow = rowIdx; // guardar zona para usarlo en el modal
+  return btn;
+}
+
+function addInfraItem(rowIdx) {
+  const infra = loadInfra();
+  const row   = infra[rowIdx];
+  // Generar nombre sugerido basado en el último de la fila
+  const last  = row.ids[row.ids.length - 1] || '';
+  const match = last.match(/·(\d+)$/);
+  const next  = match ? (parseInt(match[1]) + 1) : (row.ids.length + 1);
+  const base  = last.replace(/·\d+$/, '') || row.label.split('·')[0].trim();
+  const suggested = match ? `${base}·${next}` : `${base}·${next}`;
+  const name = prompt(`Nombre del nuevo elemento en "${row.label}":`, suggested);
+  if (!name || !name.trim()) return;
+  const newId = name.trim();
+  if (row.ids.includes(newId)) { alert('Ya existe ese ID en esta fila.'); return; }
+  row.ids.push(newId);
+  saveInfra(infra);
+  const container = document.getElementById('infra-map');
+  buildInfraSection(container);
+  renderAll();
+}
+
+function removeInfraItem(rowIdx, id) {
+  if (stateOf(id) !== 'ok') {
+    if (!confirm(`"${id}" tiene una incidencia activa. ¿Eliminar igualmente?`)) return;
+    delete state[id]; saveState();
+  }
+  const infra = loadInfra();
+  infra[rowIdx].ids = infra[rowIdx].ids.filter(x => x !== id);
+  saveInfra(infra);
+  buildInfraSection(document.getElementById('infra-map'));
+  renderAll();
+}
+
+function buildMap() {
+  // ── Garitas GH ──
+  const ghEl = document.getElementById('gh-map');
+  [
+    { label: 'Garitas', ids: ['V0','V2'] },
+  ].forEach(row => {
+    const div = document.createElement('div');
+    div.className = 'btn-row';
+    div.innerHTML = `<div class="row-label">${row.label}</div>`;
+    row.ids.forEach(id => div.appendChild(makeBtn(id)));
+    ghEl.appendChild(div);
+  });
+
+  // ── Dock Doors ──
+  const dockEl = document.getElementById('dock-map');
+
+  const dockRows = [
+    // SAYCA / RAMP
+    { label: 'RAMP/SAYCA', ids: ['DD300-RAMP','101-SAYCA','102-SAYCA','103-SAYCA','104-SAYCA','105-SAYCA','106-RAMP'] },
+    // IB doors
+    { label: 'IB', ids: ['IB107','IB108','IB109','IB110','IB111','IB112','IB113','IB114','IB115','IB116','IB117','IB118','IB119','IB120','IB121','IB122','IB123','IB124'] },
+    // OB 125–142
+    { label: 'OB 125–142', ids: ['OB125','OB126','OB127','OB128','OB129','OB130','OB131','OB132','OB133','OB134','OB135','OB136','OB137','OB138','OB139','OB140','OB141','OB142'] },
+    // OB 143–158
+    { label: 'OB 143–158', ids: ['OB143','OB144','OB145','OB146','OB147','OB148','OB149','OB150','OB151','OB152','OB153','OB154','OB155','OB156','OB157','OB158'] },
+    // OB 159–175 + RAMP
+    { label: 'OB 159–175', ids: ['OB159','OB160','OB161','OB162','OB163','OB164','OB165','OB166','OB167','OB168','OB169','OB170','OB171','OB172','OB173','174-SEMI','175-RAMP'] },
+  ];
+
+  dockRows.forEach(row => {
+    const div = document.createElement('div');
+    div.className = 'btn-row';
+    div.innerHTML = `<div class="row-label">${row.label}</div>`;
+    row.ids.forEach(id => div.appendChild(makeBtn(id)));
+    dockEl.appendChild(div);
+  });
+
+  // ── Parking Slips ──
+  const psEl = document.getElementById('ps-map');
+  const psGroups = [];
+  for (let i = 0; i <= 112; i += 20) {
+    const ids = [];
+    for (let j = i; j < i + 20 && j <= 112; j++) {
+      ids.push('PS' + String(j).padStart(3, '0'));
+    }
+    psGroups.push({ label: `PS${String(i).padStart(3,'0')}–${String(Math.min(i+19,112)).padStart(3,'0')}`, ids });
+  }
+  psGroups.forEach(row => {
+    const div = document.createElement('div');
+    div.className = 'btn-row';
+    div.innerHTML = `<div class="row-label">${row.label}</div>`;
+    row.ids.forEach(id => div.appendChild(makeBtn(id)));
+    psEl.appendChild(div);
+  });
+
+  // ── Bumpers e Infraestructura ──
+  const infraEl = document.getElementById('infra-map');
+  buildInfraSection(infraEl);
+
+  // ── PRE / TP / Residuos ──
+  const preEl = document.getElementById('pre-map');
+  const preIds = [];
+  for (let i = 1; i <= 12; i++) preIds.push('PRE-' + String(i).padStart(3,'0'));
+  const tpIds = [];
+  for (let i = 1; i <= 11; i++) tpIds.push('TP-' + String(i).padStart(2,'0'));
+
+  [
+    { label: 'PRE', ids: preIds },
+    { label: 'TP',  ids: tpIds },
+    { label: 'OTROS', ids: ['RESIDUOS','NO-ASIGNADO'] },
+  ].forEach(row => {
+    const div = document.createElement('div');
+    div.className = 'btn-row';
+    div.innerHTML = `<div class="row-label">${row.label}</div>`;
+    row.ids.forEach(id => div.appendChild(makeBtn(id)));
+    preEl.appendChild(div);
+  });
+}
+
+function makeBtn(id) {
+  const btn = document.createElement('button');
+  btn.className = 'loc-btn s-ok';
+  btn.id = 'btn-' + id;
+  btn.innerHTML = `<span class="loc-name">${id} <span class="loc-linkdot" id="lnk-${id}" style="display:none">🔗</span></span><span class="loc-issue" id="iss-${id}"></span>`;
+  btn.onclick = () => openModal(id);
+  return btn;
+}
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+const SK = 'bcn1_state_v2';
+const LK = 'bcn1_log_v2';
+
+function loadState() { try { return JSON.parse(localStorage.getItem(SK)) || {}; } catch { return {}; } }
+function saveState()  { localStorage.setItem(SK, JSON.stringify(state)); }
+function loadLog()    { try { return JSON.parse(localStorage.getItem(LK)) || []; } catch { return []; } }
+function saveLog()    { localStorage.setItem(LK, JSON.stringify(log.slice(-150))); }
+
+let state = loadState();
+let log   = loadLog();
+
+function stateOf(id)    { return state[id]?.status || 'ok'; }
+function issueOf(id)    { return state[id]?.issue  || ''; }
+function descOf(id)     { return state[id]?.desc   || ''; }
+function timeOf(id)     { return state[id]?.time   || ''; }
+function ttLinkOf(id)   { return state[id]?.ttLink || ''; }
+
+// ══════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════
+function statusLabel(s) {
+  return s === 'open' ? 'TT abierto ⚠️' : s === 'tracking' ? 'En seguimiento' : 'Sin incidencia';
+}
+
+function renderAll() {
+  let ok = 0, open = 0, track = 0;
+  document.querySelectorAll('.loc-btn').forEach(btn => {
+    const id = btn.id.replace('btn-', '');
+    const s  = stateOf(id);
+    btn.className = 'loc-btn s-' + (s === 'tracking' ? 'tracking' : s === 'open' ? 'open' : 'ok');
+    if (DEPT_LOCS.has(id)) btn.classList.add('dept-btn-big');
+    const issEl = document.getElementById('iss-' + id);
+    if (issEl) issEl.textContent = s !== 'ok' ? (issueOf(id) || '') : '';
+    if (s === 'open') { btn.setAttribute('data-tip', descOf(id) || issueOf(id) || 'TT activo'); open++; }
+    else { btn.removeAttribute('data-tip'); }
+    const lnkEl = document.getElementById('lnk-' + id);
+    if (lnkEl) lnkEl.style.display = (s !== 'ok' && ttLinkOf(id)) ? 'inline' : 'none';
+    if (s === 'ok')   ok++;
+    if (s === 'tracking') track++;
+  });
+  document.getElementById('c-ok').textContent    = ok;
+  document.getElementById('c-open').textContent   = open;
+  document.getElementById('c-track').textContent  = track;
+  document.getElementById('tt-count').innerHTML = `TTs activos: <span>${open}</span>`;
+}
+
+function renderLog() {
+  const el = document.getElementById('log-list');
+  if (!log.length) { el.innerHTML = '<div style="color:var(--muted);padding:4px 8px;">Sin actividad.</div>'; return; }
+  el.innerHTML = [...log].reverse().map(e =>
+    `<div class="log-row l-${e.type}">
+      <span class="log-time">${e.time}</span>
+      <span class="log-loc">${e.loc}</span>
+      <span class="log-act">${e.action}</span>
+      ${e.issue ? `<span class="log-iss">[${e.issue}]</span>` : ''}
+    </div>`
+  ).join('');
+}
+
+function addLog(loc, action, type, issue = '') {
+  const t = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  log.push({ time: t, loc, action, type, issue });
+  saveLog();
+  renderLog();
+}
+
+// ══════════════════════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════════════════════
+let curId       = null;
+let curIssueId  = null;
+
+function openModal(id) {
+  curId      = id;
+  curIssueId = null;
+  const s    = stateOf(id);
+  const isDept = DEPT_LOCS.has(id);
+
+  // Header
+  const meta = DEPT_META[id];
+  document.getElementById('m-badge').textContent  = id;
+  document.getElementById('m-badge').className    = 'badge s-' + s;
+  document.getElementById('m-name').textContent   = meta ? meta.name : id;
+  document.getElementById('m-section').textContent = meta ? meta.section : getSectionName(id);
+  document.getElementById('m-statuslbl').textContent = statusLabel(s);
+  const idesc = descOf(id);
+  document.getElementById('m-issuedesc').textContent = idesc ? `— ${idesc}` : '';
+
+  // Issue type grid — only for location buttons (not depts)
+  const selEl = document.getElementById('issue-selector');
+  const grid  = document.getElementById('issue-type-grid');
+  const descEl = document.getElementById('m-desc');
+
+  if (!isDept && s === 'ok') {
+    selEl.style.display = 'block';
+    descEl.style.display = 'block';
+    descEl.value = '';
+    grid.innerHTML = '';
+    ISSUE_TYPES.forEach(it => {
+      const btn = document.createElement('button');
+      btn.className = 'issue-type-btn';
+      btn.textContent = it.label;
+      btn.onclick = () => {
+        curIssueId = it.id;
+        grid.querySelectorAll('.issue-type-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        renderModalActions();
+      };
+      grid.appendChild(btn);
+    });
+  } else {
+    selEl.style.display = 'none';
+    descEl.style.display = 'none';
+  }
+
+  // TT link field — visible siempre que haya incidencia activa o al reportar nueva
+  const ttWrap  = document.getElementById('ttlink-wrap');
+  const ttInput = document.getElementById('m-ttlink');
+  const ttPreview = document.getElementById('m-ttlink-preview');
+  const ttHref    = document.getElementById('m-ttlink-href');
+  const existingLink = ttLinkOf(id);
+
+  ttWrap.style.display = 'block';
+  ttInput.value = existingLink;
+  if (existingLink) {
+    ttPreview.style.display = 'block';
+    ttHref.href = existingLink;
+    ttHref.textContent = existingLink;
+  } else {
+    ttPreview.style.display = 'none';
+  }
+
+  renderModalActions();
+  document.getElementById('overlay').classList.add('show');
+}
+
+function renderModalActions() {
+  const s      = stateOf(curId);
+  const isDept = DEPT_LOCS.has(curId);
+  const el     = document.getElementById('m-actions');
+  el.innerHTML = '';
+
+  if (isDept) {
+    // Dept buttons: direct open TT link + status change
+    const deptKey = curId;
+    const link = LINKS[deptKey] || LINKS.CHANGE;
+    addAbtn(el, 'abtn-orange', '🔗 ' + link.label, () => window.open(link.url, '_blank'));
+    addSep(el);
+    if (s !== 'open')     addAbtn(el, 'abtn-red',   '🔴 Marcar TT abierto',     () => { const ttl = document.getElementById('m-ttlink').value.trim(); setStatus(curId, 'open', '', '', ttl); });
+    if (s !== 'tracking') addAbtn(el, 'abtn-amber',  '🟡 En seguimiento',         () => setStatus(curId, 'tracking', '', ''));
+    if (s !== 'ok')       addAbtn(el, 'abtn-green', '✅ Resuelto — cerrar TT',   () => setStatus(curId, 'ok', '', ''));
+  } else if (s === 'ok') {
+    // Location: open TT flow
+    if (curIssueId) {
+      const it   = ISSUE_TYPES.find(x => x.id === curIssueId);
+      const link = LINKS[it.dept];
+      addAbtn(el, 'abtn-orange', `🎫 Abrir TT → ${link.label}`, () => {
+        window.open(link.url, '_blank');
+        const desc = document.getElementById('m-desc').value.trim();
+        const ttl  = document.getElementById('m-ttlink').value.trim();
+        setStatus(curId, 'open', it.label, desc || it.label, ttl);
+      });
+      addSep(el);
+      addAbtn(el, 'abtn-red', '🔴 Solo marcar como abierto (sin link)', () => {
+        const desc = document.getElementById('m-desc').value.trim();
+        const ttl  = document.getElementById('m-ttlink').value.trim();
+        setStatus(curId, 'open', it.label, desc || it.label, ttl);
+      });
+    } else {
+      const infoDiv = document.createElement('div');
+      infoDiv.style.cssText = 'font-size:11px;color:var(--muted);text-align:center;padding:8px;';
+      infoDiv.textContent = 'Selecciona el tipo de incidencia para continuar.';
+      el.appendChild(infoDiv);
+    }
+  } else {
+    // Already open/tracking: manage
+    const storedLink = ttLinkOf(curId);
+    if (storedLink) {
+      addAbtn(el, 'abtn-orange', '🔗 Abrir TT guardado', () => window.open(storedLink, '_blank'));
+    } else {
+      const issue = issueOf(curId);
+      const deptKey = issue ? (ISSUE_TYPES.find(x => x.label === issue)?.dept || 'CHANGE') : 'CHANGE';
+      const link = LINKS[deptKey] || LINKS.CHANGE;
+      addAbtn(el, 'abtn-orange', `🔗 Ir al portal (${link.label})`, () => window.open(link.url, '_blank'));
+    }
+    addSep(el);
+    if (s !== 'tracking') addAbtn(el, 'abtn-amber', '🟡 Pasar a seguimiento',      () => setStatus(curId, 'tracking', issueOf(curId), descOf(curId)));
+    if (s !== 'open')     addAbtn(el, 'abtn-red',   '🔴 Marcar TT abierto',        () => setStatus(curId, 'open',     issueOf(curId), descOf(curId)));
+    addAbtn(el, 'abtn-green', '✅ Resuelto — cerrar TT', () => setStatus(curId, 'ok', '', ''));
+  }
+
+  // Opción eliminar — solo para elementos de infraestructura dinámica
+  if (isInfraId(curId)) {
+    addSep(el);
+    const delBtn = document.createElement('button');
+    delBtn.className = 'abtn';
+    delBtn.style.cssText = 'background:transparent;border:1px solid #5a2020;color:#c06060;width:100%;padding:9px;border-radius:6px;cursor:pointer;font-size:12px;';
+    delBtn.innerHTML = '🗑 Eliminar este elemento de la lista';
+    delBtn.onclick = () => {
+      if (confirm(`¿Eliminar "${curId}" de la sección de infraestructura?\nSi tiene incidencia activa también se borrará.`)) {
+        const infra = loadInfra();
+        let removed = false;
+        infra.forEach(row => {
+          const i = row.ids.indexOf(curId);
+          if (i !== -1) { row.ids.splice(i, 1); removed = true; }
+        });
+        if (removed) {
+          if (state[curId]) { delete state[curId]; saveState(); }
+          saveInfra(infra);
+          buildInfraSection(document.getElementById('infra-map'));
+          renderAll();
+        }
+        closeModal();
+      }
+    };
+    el.appendChild(delBtn);
+  }
+
+  addSep(el);
+  addAbtn(el, 'abtn-ghost', 'Cancelar', closeModal);
+}
+
+function isInfraId(id) {
+  return id.startsWith('B·') || id.startsWith('QM·') ||
+         id.startsWith('VIA·') || id.startsWith('SÑL·') || id.startsWith('MARCA·');
+}
+
+// Actualiza preview en tiempo real al escribir/pegar el link
+function onTTLinkInput() {
+  const val = document.getElementById('m-ttlink').value.trim();
+  const preview = document.getElementById('m-ttlink-preview');
+  const href    = document.getElementById('m-ttlink-href');
+  if (val) {
+    preview.style.display = 'block';
+    href.href = val;
+    href.textContent = val;
+  } else {
+    preview.style.display = 'none';
+  }
+  // Si ya hay TT activo, actualizar link en estado al vuelo
+  if (curId && stateOf(curId) !== 'ok') {
+    if (state[curId]) {
+      state[curId].ttLink = val;
+      saveState();
+      renderAll();
+    }
+  }
+}
+
+// Guardar solo el link sin cambiar el estado (botón 💾)
+function saveTTLinkOnly() {
+  if (!curId) return;
+  const val = document.getElementById('m-ttlink').value.trim();
+  if (stateOf(curId) !== 'ok') {
+    if (!state[curId]) state[curId] = { status: 'tracking', issue: '', desc: '', time: '', ttLink: '' };
+    state[curId].ttLink = val;
+    saveState();
+    renderAll();
+    addLog(curId, 'Link TT actualizado', stateOf(curId) === 'open' ? 'open' : 'track');
+  }
+}
+
+function addAbtn(parent, cls, label, fn) {
+  const b = document.createElement('button');
+  b.className = 'abtn ' + cls;
+  b.innerHTML = label;
+  b.onclick   = fn;
+  parent.appendChild(b);
+}
+function addSep(parent) {
+  const hr = document.createElement('hr');
+  hr.className = 'modal-sep';
+  parent.appendChild(hr);
+}
+
+function setStatus(id, newStatus, issue, desc, ttLink) {
+  const now = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+  if (newStatus === 'ok') {
+    delete state[id];
+  } else {
+    const existingLink = ttLink !== undefined ? ttLink : ttLinkOf(id);
+    state[id] = { status: newStatus, issue, desc, time: now, ttLink: existingLink };
+  }
+  saveState();
+  const logType = newStatus === 'ok' ? 'resolve' : newStatus === 'open' ? 'open' : 'track';
+  const logAct  = newStatus === 'ok' ? 'Incidencia resuelta' : newStatus === 'open' ? 'TT abierto' : 'En seguimiento';
+  addLog(id, logAct, logType, issue);
+  renderAll();
+  closeModal();
+}
+
+function getSectionName(id) {
+  if (id.startsWith('GHV') || id.startsWith('GH')) return 'Garita de Trabajo GH';
+  if (id.startsWith('IB'))  return 'Muelle Inbound';
+  if (id.startsWith('OB'))  return 'Muelle Outbound';
+  if (id.startsWith('PS'))  return 'Plaza de Parking';
+  if (id.startsWith('PRE')) return 'Zona PRE';
+  if (id.startsWith('TP'))  return 'Zona TP';
+  if (id.includes('SAYCA') || id.includes('RAMP')) return 'Rampa / SAYCA';
+  if (id.startsWith('B·'))    return 'Bumper — ' + (id.includes('IB') ? 'Zona IB' : id.includes('OB·A') ? 'Zona OB-A' : id.includes('OB·B') ? 'Zona OB-B' : 'Zona GH');
+  if (id.startsWith('QM·'))   return 'Quitamiedos — ' + (id.includes('IB') ? 'Zona IB' : id.includes('OB·A') ? 'Zona OB-A' : id.includes('OB·B') ? 'Zona OB-B' : 'Zona GH');
+  if (id.startsWith('VIA·'))  return 'Calzada / Firme';
+  if (id.startsWith('SÑL·') || id.startsWith('MARCA·')) return 'Señalización';
+  return 'BCN1';
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('show');
+  curId = null; curIssueId = null;
+}
+function overlayClick(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ══════════════════════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════════════════════
+function tick() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+setInterval(tick, 1000); tick();
+
+// ══════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════
+function confirmReset() {
+  if (confirm('¿Resetear TODOS los estados a verde (sin incidencia)?')) {
+    state = {}; saveState();
+    addLog('SISTEMA', 'Reset completo', 'resolve');
+    renderAll();
+  }
+}
+function clearLog() {
+  if (confirm('¿Borrar el historial?')) { log = []; saveLog(); renderLog(); }
+}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+buildMap();
+renderAll();
+renderLog();
+</script>
+
+</body>
+</html>

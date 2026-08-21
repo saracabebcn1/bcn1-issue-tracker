@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: bcn1-issue-tracker
+    runtime: static
+    staticPublishPath: .
+    pullRequestPreviewsEnabled: false
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-store

@@ -50,8 +50,6 @@ const FC_CONFIG = {
     { label: 'Signage',                   ids: ['SÑL·01','SÑL·02','SÑL·03'] },
   ],
 
-,
-
   // ── Supabase (shared state across all PCs) ─────────────
   supabase: {
     url:     'https://yufggugocmzhoeetmnkx.supabase.co',

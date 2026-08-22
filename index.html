@@ -812,7 +812,7 @@ function openModal(id) {
   document.getElementById('overlay').classList.add('show');
 }
 
-function renderModalActions() {
+async function renderModalActions() {
   const s      = stateOf(curId);
   const isDept = DEPT_LOCS.has(curId);
   const el     = document.getElementById('m-actions');

@@ -1020,7 +1020,14 @@ async function clearLog() {
 document.getElementById('fc-logo').textContent = FC_CONFIG.name + ' · Issue Tracker';
 document.getElementById('fc-logo-btn').textContent = FC_CONFIG.name;
 
-buildMap();
+try {
+  buildMap();
+} catch(err) {
+  document.querySelectorAll('.map-box').forEach(b => {
+    b.innerHTML = '<div style="color:#e74c3c;padding:8px;font-size:12px;">⚠️ Error: ' + err.message + '</div>';
+  });
+  console.error('buildMap error:', err);
+}
 
 // Cargar estado desde Supabase al arrancar
 (async () => {

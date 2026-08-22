@@ -517,7 +517,7 @@ function addInfraItem(rowIdx) {
 function removeInfraItem(rowIdx, id) {
   if (stateOf(id) !== 'ok') {
     if (!confirm(`"${id}" tiene una incidencia activa. ¿Eliminar igualmente?`)) return;
-    delete state[id]; saveState();
+    delete state[id]; await upsertState(id, { status: 'ok' });
   }
   const infra = loadInfra();
   infra[rowIdx].ids = infra[rowIdx].ids.filter(x => x !== id);
@@ -1003,13 +1003,14 @@ setInterval(tick, 1000); tick();
 // ══════════════════════════════════════════════════════════
 function confirmReset() {
   if (confirm('¿Resetear TODOS los estados a verde (sin incidencia)?')) {
-    state = {}; saveState();
-    addLog('SISTEMA', 'Reset completo', 'resolve');
-    renderAll();
+    /* dead code */
   }
 }
-function clearLog() {
-  if (confirm('Clear the activity log?')) { log = []; saveLog(); renderLog(); }
+async function clearLog() {
+  if (confirm('Clear the activity log?')) {
+    await fetch(`${SUPA_URL}/rest/v1/issue_log?fc_name=eq.${FC_NAME}`, { method: 'DELETE', headers: SUPA_HDR });
+    log = []; renderLog();
+  }
 }
 
 // ══════════════════════════════════════════════════════════

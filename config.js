@@ -12,10 +12,10 @@ const FC_CONFIG = {
 
   // ── Links de departamentos ──────────────────────────────
   deptLinks: {
-    CBRE:     { label: 'Workflow RME/CBRE',  url: 'https://river.amazon.com/BCN1/workflows?buildingType=fc&q0=8eddca34-afe4-48db-9206-b41529fa1349&q1=de867ca4-d11b-4e0b-ae4b-f3b801865c32&q2=ba57fb84-6d7a-4afb-89f4-b53b295ff79e&q3=e4bb11b9-c6b7-46ef-9b27-a23d2992628b&id=e4bb11b9-c6b7-46ef-9b27-a23d2992628b' },
-    EUROCERN: { label: 'TT EUROCERN',        url: 'https://t.corp.amazon.com/D499060453' },
-    IT:       { label: 'Ticket IT',          url: 'https://river.amazon.com/?org=it_help&q0=a74a3d48-56aa-4649-a1af-da4da42e5291' },
-    CHANGE:   { label: 'TT CHANGE',          url: 'https://t.corp.amazon.com/D513389296' },
+    CBRE:     { label: 'RME/CBRE Workflow',  url: 'https://river.amazon.com/BCN1/workflows?buildingType=fc&q0=8eddca34-afe4-48db-9206-b41529fa1349&q1=de867ca4-d11b-4e0b-ae4b-f3b801865c32&q2=ba57fb84-6d7a-4afb-89f4-b53b295ff79e&q3=e4bb11b9-c6b7-46ef-9b27-a23d2992628b&id=e4bb11b9-c6b7-46ef-9b27-a23d2992628b' },
+    EUROCERN: { label: 'EUROCERN TT',        url: 'https://t.corp.amazon.com/D499060453' },
+    IT:       { label: 'IT Ticket',          url: 'https://river.amazon.com/?org=it_help&q0=a74a3d48-56aa-4649-a1af-da4da42e5291' },
+    CHANGE:   { label: 'CHANGE TT',          url: 'https://t.corp.amazon.com/D513389296' },
   },
 
   // ── Garitas de trabajo ──────────────────────────────────
@@ -34,20 +34,28 @@ const FC_CONFIG = {
   psRange:  { from: 0, to: 112 },   // genera PS000 → PS112
   preRange: { from: 1, to: 12 },    // genera PRE-001 → PRE-012
   tpRange:  { from: 1, to: 11 },    // genera TP-01 → TP-11
-  otherSlips: ['RESIDUOS', 'NO-ASIGNADO'],
+  otherSlips: ['WASTE', 'UNASSIGNED'],
 
   // ── Infraestructura (base por defecto, editable desde la UI) ──
   infraDefault: [
-    { label: 'Bumpers · Zona IB (107-124)',    ids: ['B·IB·1','B·IB·2','B·IB·3'] },
-    { label: 'Bumpers · Zona OB-A (125-149)',  ids: ['B·OB·A·1','B·OB·A·2','B·OB·A·3'] },
-    { label: 'Bumpers · Zona OB-B (150-175)',  ids: ['B·OB·B·1','B·OB·B·2','B·OB·B·3'] },
-    { label: 'Bumpers · Zona GH / Accesos',    ids: ['B·GH·1','B·GH·2'] },
-    { label: 'Quitamiedos · Zona IB',          ids: ['QM·IB·1','QM·IB·2'] },
-    { label: 'Quitamiedos · Zona OB-A',        ids: ['QM·OB·A·1','QM·OB·A·2'] },
-    { label: 'Quitamiedos · Zona OB-B',        ids: ['QM·OB·B·1','QM·OB·B·2'] },
-    { label: 'Quitamiedos · Zona GH / Rampas', ids: ['QM·GH·1','QM·GH·2'] },
-    { label: 'Calzada / Firme',                ids: ['VIA·IB','VIA·OB·A','VIA·OB·B','VIA·GH','VIA·RAMP'] },
-    { label: 'Señalización',                   ids: ['SÑL·01','SÑL·02','SÑL·03'] },
+    { label: 'Bumpers · IB Zone (107-124)',    ids: ['B·IB·1','B·IB·2','B·IB·3'] },
+    { label: 'Bumpers · OB-A Zone (125-149)',  ids: ['B·OB·A·1','B·OB·A·2','B·OB·A·3'] },
+    { label: 'Bumpers · OB-B Zone (150-175)',  ids: ['B·OB·B·1','B·OB·B·2','B·OB·B·3'] },
+    { label: 'Bumpers · GH / Access Zone',    ids: ['B·GH·1','B·GH·2'] },
+    { label: 'Guardrails · IB Zone',          ids: ['QM·IB·1','QM·IB·2'] },
+    { label: 'Guardrails · OB-A Zone',        ids: ['QM·OB·A·1','QM·OB·A·2'] },
+    { label: 'Guardrails · OB-B Zone',        ids: ['QM·OB·B·1','QM·OB·B·2'] },
+    { label: 'Guardrails · GH / Ramps Zone', ids: ['QM·GH·1','QM·GH·2'] },
+    { label: 'Road / Surface',                ids: ['VIA·IB','VIA·OB·A','VIA·OB·B','VIA·GH','VIA·RAMP'] },
+    { label: 'Signage',                   ids: ['SÑL·01','SÑL·02','SÑL·03'] },
   ],
+
+,
+
+  // ── Supabase (shared state across all PCs) ─────────────
+  supabase: {
+    url:     'https://yufggugocmzhoeetmnkx.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1ZmdndWdvY216aG9lZXRtbmt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMDE2NzAsImV4cCI6MjEwMjc3NzY3MH0.N7Ma9w7tsjhHuYz1M-pY0qUlGXW5IgdF0OYOFBAAxf0',
+  },
 
 };

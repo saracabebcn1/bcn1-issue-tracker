@@ -251,7 +251,7 @@ main { padding: 12px 18px; }
 .log-row.l-open    { border-left: 3px solid var(--red-h); }
 .log-row.l-resolve { border-left: 3px solid var(--green-h); }
 .log-row.l-track   { border-left: 3px solid var(--amber-h); }
-.log-time { color: var(--muted); min-width: 58px; }
+.log-time { color: var(--muted); min-width: 115px; }
 .log-loc  { font-weight: 700; min-width: 72px; }
 .log-act  { color: var(--muted); }
 .log-iss  { color: var(--orange); font-size: 10px; }
@@ -273,40 +273,48 @@ main { padding: 12px 18px; }
 
 <header>
   <div>
-    <div class="logo" id="fc-logo">BCN1 · Mapa de Incidencias</div>
-    <div class="subtitle">Estado en tiempo real — Muelles, Plazas y Áreas</div>
+    <div class="logo" id="fc-logo">BCN1 · Issue Tracker</div>
+    <div class="subtitle">Real-time status — Docks, Slots & Areas</div>
   </div>
   <div class="clock" id="clock">--:--:--</div>
-  <button class="reset-btn" onclick="confirmReset()">⟳ Reset</button>
-  <button class="add-fc-btn" onclick="openAddFC()">＋ Añadir FC ▾</button>
+  <div class="fc-dropdown-wrap" id="fc-dropdown-wrap">
+    <button class="add-fc-btn" onclick="toggleFCMenu(event)">
+      <span id="fc-logo-btn">BCN1</span> ▾
+    </button>
+    <div class="fc-menu" id="fc-menu">
+      <div class="fc-menu-item" onclick="openAddFC()">＋ Add this tool to my FC</div>
+      <div class="fc-menu-sep"></div>
+      <div class="fc-menu-item fc-menu-danger" onclick="promptReset()">🗑 Reset (admin)</div>
+    </div>
+  </div>
 </header>
 
 <div class="legend">
-  <div class="leg"><div class="dot dot-g"></div> Sin incidencia</div>
-  <div class="leg"><div class="dot dot-r"></div> TT abierto (activo)</div>
-  <div class="leg"><div class="dot dot-a"></div> En seguimiento</div>
-  <div class="tt-count" id="tt-count">TTs activos: <span>0</span></div>
+  <div class="leg"><div class="dot dot-g"></div> No issues</div>
+  <div class="leg"><div class="dot dot-r"></div> TT open (active)</div>
+  <div class="leg"><div class="dot dot-a"></div> In progress</div>
+  <div class="tt-count" id="tt-count">Active TTs: <span>0</span></div>
 </div>
 
 <div class="summary">
   <div class="s-card s-ok">
     <div class="s-num" id="c-ok">0</div>
-    <div class="s-lbl">Sin<br>incidencia</div>
+    <div class="s-lbl">No<br>issues</div>
   </div>
   <div class="s-card s-red">
     <div class="s-num" id="c-open">0</div>
-    <div class="s-lbl">TTs<br>abiertos</div>
+    <div class="s-lbl">Open<br>TTs</div>
   </div>
   <div class="s-card s-amb">
     <div class="s-num" id="c-track">0</div>
-    <div class="s-lbl">En<br>seguimiento</div>
+    <div class="s-lbl">In<br>progress</div>
   </div>
 </div>
 
 <main>
 
 <!-- ── DEPT BUTTONS ───────────────────────────────────────── -->
-<div class="sec-label">Departamentos de soporte</div>
+<div class="sec-label">Support Departments</div>
 <div class="map-box">
   <div class="btn-row">
     <button class="loc-btn dept-btn-big s-ok" id="btn-CBRE"     onclick="openModal('CBRE')">
@@ -326,32 +334,36 @@ main { padding: 12px 18px; }
 </div>
 
 <!-- ── GARITAS GH ────────────────────────────────────────────── -->
-<div class="sec-label">Garitas de Trabajo — GH</div>
+<div class="sec-label">GH Work Booths</div>
 <div class="map-box" id="gh-map"></div>
 
+<!-- ── DRIVERS' CANTEEN ──────────────────────────────────── -->
+<div class="sec-label">Drivers' Canteen</div>
+<div class="map-box" id="canteen-map"></div>
+
 <!-- ── DOCK DOORS ─────────────────────────────────────────── -->
-<div class="sec-label">Muelles — Dock Doors</div>
+<div class="sec-label">Dock Doors</div>
 <div class="map-box" id="dock-map"></div>
 
 <!-- ── PARKING SLIPS ──────────────────────────────────────── -->
-<div class="sec-label">Plazas — Parking Slips</div>
+<div class="sec-label">Parking Slips</div>
 <div class="map-box" id="ps-map"></div>
 
 <!-- ── PRE / TP / OTHERS ──────────────────────────────────── -->
-<div class="sec-label">Zonas PRE · TP · Residuos</div>
+<div class="sec-label">PRE · TP · Waste Zones</div>
 <div class="map-box" id="pre-map"></div>
 
 <!-- ── BUMPERS E INFRAESTRUCTURA ───────────────────────────── -->
-<div class="sec-label">Bumpers e Infraestructura</div>
+<div class="sec-label">Bumpers & Infrastructure</div>
 <div class="map-box" id="infra-map"></div>
 
 <!-- LOG -->
 <div class="log-box">
-  <h4>Registro de actividad
-    <button class="reset-btn" onclick="clearLog()" style="margin-left:8px;display:inline;">Limpiar</button>
+  <h4>Activity log
+    <button class="reset-btn" onclick="clearLog()" style="margin-left:8px;display:inline;">Clear</button>
   </h4>
   <div class="log-list" id="log-list">
-    <div style="color:var(--muted);padding:4px 8px;">Sin actividad.</div>
+    <div style="color:var(--muted);padding:4px 8px;">No activity yet.</div>
   </div>
 </div>
 
@@ -370,29 +382,29 @@ main { padding: 12px 18px; }
   </div>
 
   <div class="modal-status-box" id="m-statusbox">
-    Estado: <strong id="m-statuslbl">Sin incidencia</strong>
+    Estado: <strong id="m-statuslbl">No issues</strong>
     <span id="m-issuedesc" style="margin-left:8px;color:var(--orange);"></span>
   </div>
 
   <!-- Issue type (visible when reporting) -->
   <div class="issue-selector" id="issue-selector" style="display:none;">
-    <label>Tipo de incidencia</label>
+    <label>Issue type</label>
     <div class="issue-type-grid" id="issue-type-grid"></div>
   </div>
 
   <!-- Description -->
   <textarea class="desc-input" id="m-desc" rows="2"
-    placeholder="Descripción breve (ej: calzo no funciona, no sube el plato...)"
+    placeholder="Brief description (e.g. wheel chock not working, plate not raising...)"
     style="display:none;"></textarea>
 
   <!-- TT link input -->
   <div id="ttlink-wrap" style="display:none;margin-bottom:14px;">
     <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;">
-      Link del TT (para que todos puedan consultarlo)
+      TT link (so everyone can check the status)
     </label>
     <div style="display:flex;gap:6px;align-items:center;">
       <input id="m-ttlink" type="url"
-        placeholder="Pega aquí el link del TT abierto..."
+        placeholder="Paste the open TT link here..."
         style="flex:1;padding:8px 10px;background:var(--surf3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;"
         oninput="onTTLinkInput()" />
       <button onclick="saveTTLinkOnly()" title="Guardar link"
@@ -400,7 +412,7 @@ main { padding: 12px 18px; }
     </div>
     <div id="m-ttlink-preview" style="margin-top:6px;display:none;">
       <a id="m-ttlink-href" href="#" target="_blank"
-        style="font-size:11px;color:var(--orange);word-break:break-all;">— ver TT →</a>
+        style="font-size:11px;color:var(--orange);word-break:break-all;">— view TT →</a>
     </div>
   </div>
 
@@ -419,26 +431,26 @@ const LINKS = FC_CONFIG.deptLinks;
 
 // Issue types → auto-route to dept
 const ISSUE_TYPES = [
-  { id: 'calzo',      label: '🔩 Calzo / Dock leveler',  dept: 'CBRE' },
-  { id: 'electrico',  label: '⚡ Eléctrico / Puerta',    dept: 'CBRE' },
-  { id: 'mecanico',   label: '🔧 Mecánico general',       dept: 'CBRE' },
-  { id: 'bumper',     label: '🛑 Bumper dañado',          dept: 'CBRE' },
-  { id: 'quitamiedos',label: '🚧 Quitamiedos roto',       dept: 'CBRE' },
-  { id: 'calzada',    label: '🛣️ Calzada / Firme',        dept: 'CBRE' },
-  { id: 'senyal',     label: '⚠️ Señalización / Marca',   dept: 'CBRE' },
-  { id: 'it',         label: '💻 IT / Sistema / Red',     dept: 'IT'   },
-  { id: 'acceso',     label: '🔒 Acceso / CCTV',          dept: 'EUROCERN' },
-  { id: 'cambio',     label: '📋 Cambio / Otro',          dept: 'CHANGE' },
+  { id: 'calzo',      label: '🔩 Wheel chock / Dock leveler',  dept: 'CBRE' },
+  { id: 'electrico',  label: '⚡ Electrical / Door',    dept: 'CBRE' },
+  { id: 'mecanico',   label: '🔧 General mechanical',       dept: 'CBRE' },
+  { id: 'bumper',     label: '🛑 Damaged bumper',          dept: 'CBRE' },
+  { id: 'quitamiedos',label: '🚧 Broken guardrail',       dept: 'CBRE' },
+  { id: 'calzada',    label: '🛣️ Road / Surface',        dept: 'CBRE' },
+  { id: 'senyal',     label: '⚠️ Signage / Marking',   dept: 'CBRE' },
+  { id: 'it',         label: '💻 IT / System / Network',     dept: 'IT'   },
+  { id: 'acceso',     label: '🔒 Access / CCTV',          dept: 'EUROCERN' },
+  { id: 'cambio',     label: '📋 Change / Other',          dept: 'CHANGE' },
 ];
 
 // Dept-only locations (no issue-type routing, direct link)
 const DEPT_LOCS = new Set(['CBRE','EUROCERN','IT','CHANGE']);
 
 const DEPT_META = {
-  CBRE:     { name: 'CBRE / RME',   section: 'Facilities / Mantenimiento' },
-  EUROCERN: { name: 'EUROCERN',     section: 'Seguridad / Control de accesos' },
-  IT:       { name: 'IT',           section: 'Soporte Tecnológico' },
-  CHANGE:   { name: 'CHANGE',       section: 'Gestión de Cambios' },
+  CBRE:     { name: 'CBRE / RME',   section: 'Facilities / Maintenance' },
+  EUROCERN: { name: 'EUROCERN',     section: 'Security / Access Control' },
+  IT:       { name: 'IT',           section: 'IT Support' },
+  CHANGE:   { name: 'CHANGE',       section: 'Change Management' },
 };
 
 // ══════════════════════════════════════════════════════════
@@ -469,7 +481,7 @@ function buildInfraSection(container) {
     // Botón + añadir
     const addBtn = document.createElement('button');
     addBtn.className = 'infra-add-btn';
-    addBtn.textContent = '+ añadir';
+    addBtn.textContent = '+ add';
     addBtn.onclick = () => addInfraItem(rowIdx);
     div.appendChild(addBtn);
     container.appendChild(div);
@@ -494,7 +506,7 @@ function addInfraItem(rowIdx) {
   const name = prompt(`Nombre del nuevo elemento en "${row.label}":`, suggested);
   if (!name || !name.trim()) return;
   const newId = name.trim();
-  if (row.ids.includes(newId)) { alert('Ya existe ese ID en esta fila.'); return; }
+  if (row.ids.includes(newId)) { alert('This ID already exists in this row.'); return; }
   row.ids.push(newId);
   saveInfra(infra);
   const container = document.getElementById('infra-map');
@@ -515,7 +527,19 @@ function removeInfraItem(rowIdx, id) {
 }
 
 function buildMap() {
-  // ── Garitas GH ──
+  // ── Drivers' Canteen ──
+  const canteenEl = document.getElementById('canteen-map');
+  [
+    { label: 'Canteen', ids: ['CANTEEN'] },
+  ].forEach(row => {
+    const div = document.createElement('div');
+    div.className = 'btn-row';
+    div.innerHTML = `<div class="row-label">${row.label}</div>`;
+    row.ids.forEach(id => div.appendChild(makeBtn(id)));
+    canteenEl.appendChild(div);
+  });
+
+  // ── GH Work Booths ──
   const ghEl = document.getElementById('gh-map');
   [
     { label: 'Garitas', ids: FC_CONFIG.garitas },
@@ -559,7 +583,7 @@ function buildMap() {
     psEl.appendChild(div);
   });
 
-  // ── Bumpers e Infraestructura ──
+  // ── Bumpers & Infrastructure ──
   const infraEl = document.getElementById('infra-map');
   buildInfraSection(infraEl);
 
@@ -593,18 +617,77 @@ function makeBtn(id) {
 }
 
 // ══════════════════════════════════════════════════════════
-// STATE
+// SUPABASE — shared state across all PCs
 // ══════════════════════════════════════════════════════════
-const SK = (FC_CONFIG.name || 'fc') + '_state_v2';
-const LK = (FC_CONFIG.name || 'fc') + '_log_v2';
+const SUPA_URL  = FC_CONFIG.supabase.url;
+const SUPA_KEY  = FC_CONFIG.supabase.anonKey;
+const FC_NAME   = FC_CONFIG.name;
+const SUPA_HDR  = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY };
+const SUPA_JSON = { ...SUPA_HDR, 'Content-Type': 'application/json' };
 
-function loadState() { try { return JSON.parse(localStorage.getItem(SK)) || {}; } catch { return {}; } }
-function saveState()  { localStorage.setItem(SK, JSON.stringify(state)); }
-function loadLog()    { try { return JSON.parse(localStorage.getItem(LK)) || []; } catch { return []; } }
-function saveLog()    { localStorage.setItem(LK, JSON.stringify(log.slice(-150))); }
+let state = {};
+let log   = [];
 
-let state = loadState();
-let log   = loadLog();
+async function fetchState() {
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/issue_states?fc_name=eq.${FC_NAME}&select=*`, { headers: SUPA_HDR });
+    const rows = await r.json();
+    if (!Array.isArray(rows)) return;
+    state = {};
+    rows.forEach(row => {
+      state[row.loc_id] = { status: row.status, issue: row.issue, desc: row.description, time: row.time_set, ttLink: row.tt_link };
+    });
+  } catch(e) { console.warn('fetchState error', e); }
+}
+
+async function upsertState(id, data) {
+  try {
+    if (data.status === 'ok') {
+      await fetch(`${SUPA_URL}/rest/v1/issue_states?loc_id=eq.${encodeURIComponent(id)}&fc_name=eq.${FC_NAME}`, {
+        method: 'DELETE', headers: SUPA_HDR
+      });
+    } else {
+      await fetch(`${SUPA_URL}/rest/v1/issue_states`, {
+        method: 'POST',
+        headers: { ...SUPA_JSON, 'Prefer': 'resolution=merge-duplicates' },
+        body: JSON.stringify({ loc_id: id, fc_name: FC_NAME, status: data.status, issue: data.issue || '', description: data.desc || '', time_set: data.time || '', tt_link: data.ttLink || '' })
+      });
+    }
+  } catch(e) { console.warn('upsertState error', e); }
+}
+
+async function fetchLog() {
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/issue_log?fc_name=eq.${FC_NAME}&order=created_at.desc&limit=80&select=*`, { headers: SUPA_HDR });
+    const rows = await r.json();
+    if (!Array.isArray(rows)) return;
+    log = rows.map(r => ({ time: r.time_label, loc: r.loc_id, action: r.action, type: r.log_type, issue: r.issue }));
+  } catch(e) { console.warn('fetchLog error', e); }
+}
+
+async function insertLog(loc, action, type, issue) {
+  const _now = new Date();
+  const timeLabel = _now.toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit' }) + ' ' +
+                    _now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/issue_log`, {
+      method: 'POST',
+      headers: SUPA_JSON,
+      body: JSON.stringify({ fc_name: FC_NAME, loc_id: loc, action, log_type: type, issue: issue || '', time_label: timeLabel })
+    });
+    log.unshift({ time: timeLabel, loc, action, type, issue: issue || '' });
+    if (log.length > 80) log.pop();
+  } catch(e) { console.warn('insertLog error', e); }
+}
+
+// Auto-refresh each 15s — keeps all PCs in sync
+async function autoRefresh() {
+  await fetchState();
+  await fetchLog();
+  renderAll();
+  renderLog();
+}
+setInterval(autoRefresh, 15000);
 
 function stateOf(id)    { return state[id]?.status || 'ok'; }
 function issueOf(id)    { return state[id]?.issue  || ''; }
@@ -616,7 +699,7 @@ function ttLinkOf(id)   { return state[id]?.ttLink || ''; }
 // RENDER
 // ══════════════════════════════════════════════════════════
 function statusLabel(s) {
-  return s === 'open' ? 'TT abierto ⚠️' : s === 'tracking' ? 'En seguimiento' : 'Sin incidencia';
+  return s === 'open' ? 'TT open ⚠️' : s === 'tracking' ? 'In progress' : 'No issues';
 }
 
 function renderAll() {
@@ -638,12 +721,12 @@ function renderAll() {
   document.getElementById('c-ok').textContent    = ok;
   document.getElementById('c-open').textContent   = open;
   document.getElementById('c-track').textContent  = track;
-  document.getElementById('tt-count').innerHTML = `TTs activos: <span>${open}</span>`;
+  document.getElementById('tt-count').innerHTML = `Active TTs: <span>${open}</span>`;
 }
 
 function renderLog() {
   const el = document.getElementById('log-list');
-  if (!log.length) { el.innerHTML = '<div style="color:var(--muted);padding:4px 8px;">Sin actividad.</div>'; return; }
+  if (!log.length) { el.innerHTML = '<div style="color:var(--muted);padding:4px 8px;">No activity yet.</div>'; return; }
   el.innerHTML = [...log].reverse().map(e =>
     `<div class="log-row l-${e.type}">
       <span class="log-time">${e.time}</span>
@@ -654,10 +737,8 @@ function renderLog() {
   ).join('');
 }
 
-function addLog(loc, action, type, issue = '') {
-  const t = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-  log.push({ time: t, loc, action, type, issue });
-  saveLog();
+async function addLog(loc, action, type, issue = '') {
+  await insertLog(loc, action, type, issue);
   renderLog();
 }
 
@@ -743,9 +824,9 @@ function renderModalActions() {
     const link = LINKS[deptKey] || LINKS.CHANGE;
     addAbtn(el, 'abtn-orange', '🔗 ' + link.label, () => window.open(link.url, '_blank'));
     addSep(el);
-    if (s !== 'open')     addAbtn(el, 'abtn-red',   '🔴 Marcar TT abierto',     () => { const ttl = document.getElementById('m-ttlink').value.trim(); setStatus(curId, 'open', '', '', ttl); });
-    if (s !== 'tracking') addAbtn(el, 'abtn-amber',  '🟡 En seguimiento',         () => setStatus(curId, 'tracking', '', ''));
-    if (s !== 'ok')       addAbtn(el, 'abtn-green', '✅ Resuelto — cerrar TT',   () => setStatus(curId, 'ok', '', ''));
+    if (s !== 'open')     addAbtn(el, 'abtn-red',   '🔴 Mark TT as open',     () => { const ttl = document.getElementById('m-ttlink').value.trim(); setStatus(curId, 'open', '', '', ttl); });
+    if (s !== 'tracking') addAbtn(el, 'abtn-amber',  '🟡 In progress',         () => setStatus(curId, 'tracking', '', ''));
+    if (s !== 'ok')       addAbtn(el, 'abtn-green', '✅ Resolved — close TT',   () => setStatus(curId, 'ok', '', ''));
   } else if (s === 'ok') {
     // Location: open TT flow
     if (curIssueId) {
@@ -758,7 +839,7 @@ function renderModalActions() {
         setStatus(curId, 'open', it.label, desc || it.label, ttl);
       });
       addSep(el);
-      addAbtn(el, 'abtn-red', '🔴 Solo marcar como abierto (sin link)', () => {
+      addAbtn(el, 'abtn-red', '🔴 Mark as open only (no link)', () => {
         const desc = document.getElementById('m-desc').value.trim();
         const ttl  = document.getElementById('m-ttlink').value.trim();
         setStatus(curId, 'open', it.label, desc || it.label, ttl);
@@ -766,14 +847,14 @@ function renderModalActions() {
     } else {
       const infoDiv = document.createElement('div');
       infoDiv.style.cssText = 'font-size:11px;color:var(--muted);text-align:center;padding:8px;';
-      infoDiv.textContent = 'Selecciona el tipo de incidencia para continuar.';
+      infoDiv.textContent = 'Select the issue type to continue.';
       el.appendChild(infoDiv);
     }
   } else {
     // Already open/tracking: manage
     const storedLink = ttLinkOf(curId);
     if (storedLink) {
-      addAbtn(el, 'abtn-orange', '🔗 Abrir TT guardado', () => window.open(storedLink, '_blank'));
+      addAbtn(el, 'abtn-orange', '🔗 Open saved TT', () => window.open(storedLink, '_blank'));
     } else {
       const issue = issueOf(curId);
       const deptKey = issue ? (ISSUE_TYPES.find(x => x.label === issue)?.dept || 'CHANGE') : 'CHANGE';
@@ -781,9 +862,9 @@ function renderModalActions() {
       addAbtn(el, 'abtn-orange', `🔗 Ir al portal (${link.label})`, () => window.open(link.url, '_blank'));
     }
     addSep(el);
-    if (s !== 'tracking') addAbtn(el, 'abtn-amber', '🟡 Pasar a seguimiento',      () => setStatus(curId, 'tracking', issueOf(curId), descOf(curId)));
-    if (s !== 'open')     addAbtn(el, 'abtn-red',   '🔴 Marcar TT abierto',        () => setStatus(curId, 'open',     issueOf(curId), descOf(curId)));
-    addAbtn(el, 'abtn-green', '✅ Resuelto — cerrar TT', () => setStatus(curId, 'ok', '', ''));
+    if (s !== 'tracking') addAbtn(el, 'abtn-amber', '🟡 Move to in progress',      () => setStatus(curId, 'tracking', issueOf(curId), descOf(curId)));
+    if (s !== 'open')     addAbtn(el, 'abtn-red',   '🔴 Mark TT as open',        () => setStatus(curId, 'open',     issueOf(curId), descOf(curId)));
+    addAbtn(el, 'abtn-green', '✅ Resolved — close TT', () => setStatus(curId, 'ok', '', ''));
   }
 
   // Opción eliminar — solo para elementos de infraestructura dinámica
@@ -792,7 +873,7 @@ function renderModalActions() {
     const delBtn = document.createElement('button');
     delBtn.className = 'abtn';
     delBtn.style.cssText = 'background:transparent;border:1px solid #5a2020;color:#c06060;width:100%;padding:9px;border-radius:6px;cursor:pointer;font-size:12px;';
-    delBtn.innerHTML = '🗑 Eliminar este elemento de la lista';
+    delBtn.innerHTML = '🗑 Remove this item from the list';
     delBtn.onclick = () => {
       if (confirm(`¿Eliminar "${curId}" de la sección de infraestructura?\nSi tiene incidencia activa también se borrará.`)) {
         const infra = loadInfra();
@@ -802,7 +883,7 @@ function renderModalActions() {
           if (i !== -1) { row.ids.splice(i, 1); removed = true; }
         });
         if (removed) {
-          if (state[curId]) { delete state[curId]; saveState(); }
+          if (state[curId]) { delete state[curId]; await upsertState(curId, { status: 'ok' }); }
           saveInfra(infra);
           buildInfraSection(document.getElementById('infra-map'));
           renderAll();
@@ -814,7 +895,7 @@ function renderModalActions() {
   }
 
   addSep(el);
-  addAbtn(el, 'abtn-ghost', 'Cancelar', closeModal);
+  addAbtn(el, 'abtn-ghost', 'Cancel', closeModal);
 }
 
 function isInfraId(id) {
@@ -834,26 +915,25 @@ function onTTLinkInput() {
   } else {
     preview.style.display = 'none';
   }
-  // Si ya hay TT activo, actualizar link en estado al vuelo
+  // Si ya hay TT activo, actualizar link en estado al vuelo (se guarda al cerrar modal)
   if (curId && stateOf(curId) !== 'ok') {
     if (state[curId]) {
       state[curId].ttLink = val;
-      saveState();
       renderAll();
     }
   }
 }
 
 // Guardar solo el link sin cambiar el estado (botón 💾)
-function saveTTLinkOnly() {
+async function saveTTLinkOnly() {
   if (!curId) return;
   const val = document.getElementById('m-ttlink').value.trim();
   if (stateOf(curId) !== 'ok') {
     if (!state[curId]) state[curId] = { status: 'tracking', issue: '', desc: '', time: '', ttLink: '' };
     state[curId].ttLink = val;
-    saveState();
     renderAll();
-    addLog(curId, 'Link TT actualizado', stateOf(curId) === 'open' ? 'open' : 'track');
+    await upsertState(curId, state[curId]);
+    await addLog(curId, 'TT link updated', stateOf(curId) === 'open' ? 'open' : 'track');
   }
 }
 
@@ -870,34 +950,35 @@ function addSep(parent) {
   parent.appendChild(hr);
 }
 
-function setStatus(id, newStatus, issue, desc, ttLink) {
-  const now = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+async function setStatus(id, newStatus, issue, desc, ttLink) {
+  const now = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
   if (newStatus === 'ok') {
     delete state[id];
   } else {
     const existingLink = ttLink !== undefined ? ttLink : ttLinkOf(id);
     state[id] = { status: newStatus, issue, desc, time: now, ttLink: existingLink };
   }
-  saveState();
-  const logType = newStatus === 'ok' ? 'resolve' : newStatus === 'open' ? 'open' : 'track';
-  const logAct  = newStatus === 'ok' ? 'Incidencia resuelta' : newStatus === 'open' ? 'TT abierto' : 'En seguimiento';
-  addLog(id, logAct, logType, issue);
   renderAll();
   closeModal();
+  await upsertState(id, newStatus === 'ok' ? { status: 'ok' } : state[id]);
+  const logType = newStatus === 'ok' ? 'resolve' : newStatus === 'open' ? 'open' : 'track';
+  const logAct  = newStatus === 'ok' ? 'Issue resolved' : newStatus === 'open' ? 'TT opened' : 'In progress';
+  await addLog(id, logAct, logType, issue);
 }
 
 function getSectionName(id) {
-  if (id.startsWith('GHV') || id.startsWith('GH')) return 'Garita de Trabajo GH';
-  if (id.startsWith('IB'))  return 'Muelle Inbound';
-  if (id.startsWith('OB'))  return 'Muelle Outbound';
-  if (id.startsWith('PS'))  return 'Plaza de Parking';
-  if (id.startsWith('PRE')) return 'Zona PRE';
-  if (id.startsWith('TP'))  return 'Zona TP';
-  if (id.includes('SAYCA') || id.includes('RAMP')) return 'Rampa / SAYCA';
-  if (id.startsWith('B·'))    return 'Bumper — ' + (id.includes('IB') ? 'Zona IB' : id.includes('OB·A') ? 'Zona OB-A' : id.includes('OB·B') ? 'Zona OB-B' : 'Zona GH');
-  if (id.startsWith('QM·'))   return 'Quitamiedos — ' + (id.includes('IB') ? 'Zona IB' : id.includes('OB·A') ? 'Zona OB-A' : id.includes('OB·B') ? 'Zona OB-B' : 'Zona GH');
-  if (id.startsWith('VIA·'))  return 'Calzada / Firme';
-  if (id.startsWith('SÑL·') || id.startsWith('MARCA·')) return 'Señalización';
+  if (id.startsWith('CANT')) return "Drivers' Canteen";
+  if (id.startsWith('GHV') || id.startsWith('GH')) return 'GH Work Booth';
+  if (id.startsWith('IB'))  return 'Inbound Dock';
+  if (id.startsWith('OB'))  return 'Outbound Dock';
+  if (id.startsWith('PS'))  return 'Parking Slot';
+  if (id.startsWith('PRE')) return 'PRE Zone';
+  if (id.startsWith('TP'))  return 'TP Zone';
+  if (id.includes('SAYCA') || id.includes('RAMP')) return 'Ramp / SAYCA';
+  if (id.startsWith('B·'))    return 'Bumper — ' + (id.includes('IB') ? 'IB Zone' : id.includes('OB·A') ? 'OB-A Zone' : id.includes('OB·B') ? 'OB-B Zone' : 'GH Zone');
+  if (id.startsWith('QM·'))   return 'Guardrail — ' + (id.includes('IB') ? 'IB Zone' : id.includes('OB·A') ? 'OB-A Zone' : id.includes('OB·B') ? 'OB-B Zone' : 'GH Zone');
+  if (id.startsWith('VIA·'))  return 'Road / Surface';
+  if (id.startsWith('SÑL·') || id.startsWith('MARCA·')) return 'Signage';
   return 'BCN1';
 }
 
@@ -928,18 +1009,25 @@ function confirmReset() {
   }
 }
 function clearLog() {
-  if (confirm('¿Borrar el historial?')) { log = []; saveLog(); renderLog(); }
+  if (confirm('Clear the activity log?')) { log = []; saveLog(); renderLog(); }
 }
 
 // ══════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════
 // Aplicar nombre FC desde config
-document.getElementById('fc-logo').textContent = FC_CONFIG.name + ' · Mapa de Incidencias';
+document.getElementById('fc-logo').textContent = FC_CONFIG.name + ' · Issue Tracker';
+document.getElementById('fc-logo-btn').textContent = FC_CONFIG.name;
 
 buildMap();
-renderAll();
-renderLog();
+
+// Cargar estado desde Supabase al arrancar
+(async () => {
+  await fetchState();
+  await fetchLog();
+  renderAll();
+  renderLog();
+})();
 </script>
 
 </body>

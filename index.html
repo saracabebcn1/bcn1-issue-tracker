@@ -267,6 +267,60 @@ main { padding: 12px 18px; }
   border-radius: 4px; cursor: pointer; font-size: 10px;
 }
 .reset-btn:hover { color: var(--red-h); border-color: var(--red-h); }
+
+/* FC MENU */
+.fc-dropdown-wrap { position: relative; margin-left: 12px; }
+.add-fc-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 11px; }
+.add-fc-btn:hover { color: var(--text); border-color: var(--orange); }
+.fc-menu { display: none; position: absolute; right: 0; top: 110%; background: var(--surf2); border: 1px solid var(--border); border-radius: 6px; min-width: 200px; z-index: 200; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+.fc-menu.show { display: block; }
+.fc-menu-item { padding: 10px 14px; cursor: pointer; font-size: 12px; color: var(--text); }
+.fc-menu-item:hover { background: var(--surf3); }
+.fc-menu-sep { border-top: 1px solid var(--border); }
+.fc-menu-danger { color: var(--red-h) !important; }
+/* INFRA ADD BTN */
+.infra-add-btn { padding: 4px 7px; background: transparent; border: 1px dashed var(--border); border-radius: 3px; color: var(--muted); cursor: pointer; font-size: 9px; }
+.infra-add-btn:hover { border-color: var(--orange); color: var(--orange); }
+/* OUT OF SERVICE */
+.loc-btn.s-blocked.s-ok { background: #1e1212; border-color: #4a2020; color: #8a6666; }
+.loc-btn.s-blocked.s-open { background: #5a1010; border-color: #7a2020; }
+.loc-btn.s-blocked.s-tracking { background: #4a2e00; border-color: #6a4400; }
+.loc-btn.s-blocked::after { content: ''; position: absolute; inset: 0; border-radius: 3px; pointer-events: none; background: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(0,0,0,0.25) 3px, rgba(0,0,0,0.25) 4px); }
+/* ISSUE CARDS */
+.issue-card { background: var(--surf3); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; }
+.issue-card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.issue-card-lbl { font-weight: 700; font-size: 12px; flex: 1; }
+.issue-card-time { font-size: 10px; color: var(--muted); }
+.issue-card-desc { font-size: 11px; color: var(--muted); margin: 4px 0 8px; }
+.issue-card-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+.sbadge { padding: 2px 7px; border-radius: 3px; font-size: 10px; font-weight: 700; }
+.sbadge.open { background: var(--red); color: #fff; }
+.sbadge.tracking { background: var(--amber); color: #fff; }
+.sm-btn { padding: 5px 9px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 700; transition: all 0.1s; }
+.sm-btn:hover { filter: brightness(1.15); }
+.sm-link  { background: var(--orange); color: #111; }
+.sm-amber { background: var(--amber);  color: #fff; }
+.sm-red   { background: var(--red);    color: #fff; }
+.sm-green { background: var(--green);  color: #fff; }
+/* MODAL EXTRAS */
+.modal-section-lbl { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin: 10px 0 6px; }
+.add-issue-btn { width: 100%; padding: 9px 12px; background: var(--surf3); border: 1px dashed var(--border); border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--muted); margin-bottom: 8px; text-align: center; }
+.add-issue-btn:hover { border-color: var(--orange); color: var(--text); }
+.blocked-bar { background: #2a1515; border: 1px solid #5a3535; border-radius: 6px; padding: 9px 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.blocked-bar-lbl { font-size: 12px; color: #d07070; flex: 1; font-weight: 700; }
+.log-row.l-block { border-left: 3px solid #7a3535; }
+
+/* ══ DESIGN A — Zone colours ══ */
+.a-zone { margin-bottom: 12px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.a-zone-hdr { padding: 7px 14px; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.a-zone-hdr.z-support { background: #1a1500; border-bottom: 2px solid var(--orange); color: var(--orange); }
+.a-zone-hdr.z-gh      { background: #1a0d00; border-bottom: 2px solid var(--amber-h); color: var(--amber-h); }
+.a-zone-hdr.z-ib      { background: #001525; border-bottom: 2px solid #2980b9; color: #5dade2; }
+.a-zone-hdr.z-ob      { background: #15001a; border-bottom: 2px solid #8e44ad; color: #bb8fce; }
+.a-zone-hdr.z-ps      { background: #001408; border-bottom: 2px solid var(--green-h); color: var(--green-h); }
+.a-zone-hdr.z-infra   { background: #0a0a14; border-bottom: 2px solid #566573; color: #85929e; }
+.map-box-zone { border-radius: 0; border: none; border-top: 1px solid var(--border); margin-bottom: 0; }
+.map-box-zone:first-of-type { border-top: none; }
 </style>
 </head>
 <body>
@@ -313,49 +367,50 @@ main { padding: 12px 18px; }
 
 <main>
 
-<!-- ── DEPT BUTTONS ───────────────────────────────────────── -->
-<div class="sec-label">Support Departments</div>
-<div class="map-box">
-  <div class="btn-row">
-    <button class="loc-btn dept-btn-big s-ok" id="btn-CBRE"     onclick="openModal('CBRE')">
-      <span class="loc-name">CBRE / RME</span><span class="loc-issue" id="iss-CBRE"></span>
-    </button>
-    <button class="loc-btn dept-btn-big s-ok" id="btn-EUROCERN" onclick="openModal('EUROCERN')">
-      <span class="loc-name">EUROCERN</span><span class="loc-issue" id="iss-EUROCERN"></span>
-    </button>
-    <button class="loc-btn dept-btn-big s-ok" id="btn-IT"       onclick="openModal('IT')">
-      <span class="loc-name">IT</span><span class="loc-issue" id="iss-IT"></span>
-    </button>
-    <button class="loc-btn dept-btn-big s-ok" id="btn-CHANGE"   onclick="openModal('CHANGE')">
-      <span class="loc-name">CHANGE</span><span class="loc-issue" id="iss-CHANGE"></span>
-    </button>
-
+<!-- ── SUPPORT ──────────────────────────────────────────────── -->
+<div class="a-zone">
+  <div class="a-zone-hdr z-support">🏢 Support Departments</div>
+  <div class="map-box map-box-zone">
+    <div class="btn-row">
+      <button class="loc-btn dept-btn-big s-ok" id="btn-CBRE"     onclick="openModal('CBRE')"><span class="loc-name">CBRE / RME</span><span class="loc-issue" id="iss-CBRE"></span></button>
+      <button class="loc-btn dept-btn-big s-ok" id="btn-EUROCERN" onclick="openModal('EUROCERN')"><span class="loc-name">EUROCERN</span><span class="loc-issue" id="iss-EUROCERN"></span></button>
+      <button class="loc-btn dept-btn-big s-ok" id="btn-IT"       onclick="openModal('IT')"><span class="loc-name">IT</span><span class="loc-issue" id="iss-IT"></span></button>
+      <button class="loc-btn dept-btn-big s-ok" id="btn-CHANGE"   onclick="openModal('CHANGE')"><span class="loc-name">CHANGE</span><span class="loc-issue" id="iss-CHANGE"></span></button>
+    </div>
   </div>
 </div>
 
-<!-- ── GARITAS GH ────────────────────────────────────────────── -->
-<div class="sec-label">GH Work Booths</div>
-<div class="map-box" id="gh-map"></div>
+<!-- ── GH + CANTEEN ──────────────────────────────────────────── -->
+<div class="a-zone">
+  <div class="a-zone-hdr z-gh">🚧 GH Work Booths &amp; Drivers&#39; Canteen</div>
+  <div class="map-box map-box-zone" id="gh-map"></div>
+  <div class="map-box map-box-zone" id="canteen-map"></div>
+</div>
 
-<!-- ── DRIVERS' CANTEEN ──────────────────────────────────── -->
-<div class="sec-label">Drivers' Canteen</div>
-<div class="map-box" id="canteen-map"></div>
+<!-- ── INBOUND ───────────────────────────────────────────────── -->
+<div class="a-zone">
+  <div class="a-zone-hdr z-ib">📥 Inbound Docks</div>
+  <div class="map-box map-box-zone" id="ib-map"></div>
+</div>
 
-<!-- ── DOCK DOORS ─────────────────────────────────────────── -->
-<div class="sec-label">Dock Doors</div>
-<div class="map-box" id="dock-map"></div>
+<!-- ── OUTBOUND ──────────────────────────────────────────────── -->
+<div class="a-zone">
+  <div class="a-zone-hdr z-ob">📤 Outbound Docks</div>
+  <div class="map-box map-box-zone" id="ob-map"></div>
+</div>
 
-<!-- ── PARKING SLIPS ──────────────────────────────────────── -->
-<div class="sec-label">Parking Slips</div>
-<div class="map-box" id="ps-map"></div>
+<!-- ── PARKING ───────────────────────────────────────────────── -->
+<div class="a-zone">
+  <div class="a-zone-hdr z-ps">🅿️ Parking Slips · PRE · TP · Waste</div>
+  <div class="map-box map-box-zone" id="ps-map"></div>
+  <div class="map-box map-box-zone" id="pre-map"></div>
+</div>
 
-<!-- ── PRE / TP / OTHERS ──────────────────────────────────── -->
-<div class="sec-label">PRE · TP · Waste Zones</div>
-<div class="map-box" id="pre-map"></div>
-
-<!-- ── BUMPERS E INFRAESTRUCTURA ───────────────────────────── -->
-<div class="sec-label">Bumpers & Infrastructure</div>
-<div class="map-box" id="infra-map"></div>
+<!-- ── INFRA ─────────────────────────────────────────────────── -->
+<div class="a-zone">
+  <div class="a-zone-hdr z-infra">🔧 Bumpers &amp; Infrastructure</div>
+  <div class="map-box map-box-zone" id="infra-map"></div>
+</div>
 
 <!-- LOG -->
 <div class="log-box">
@@ -371,54 +426,7 @@ main { padding: 12px 18px; }
 
 <!-- ── MODAL ──────────────────────────────────────────────── -->
 <div class="overlay" id="overlay" onclick="overlayClick(event)">
-<div class="modal" id="modal">
-
-  <div class="modal-loc">
-    <div class="badge s-ok" id="m-badge">OB125</div>
-    <div>
-      <div class="modal-locname" id="m-name">Muelle OB125</div>
-      <div class="modal-section" id="m-section">Zona OB</div>
-    </div>
-  </div>
-
-  <div class="modal-status-box" id="m-statusbox">
-    Estado: <strong id="m-statuslbl">No issues</strong>
-    <span id="m-issuedesc" style="margin-left:8px;color:var(--orange);"></span>
-  </div>
-
-  <!-- Issue type (visible when reporting) -->
-  <div class="issue-selector" id="issue-selector" style="display:none;">
-    <label>Issue type</label>
-    <div class="issue-type-grid" id="issue-type-grid"></div>
-  </div>
-
-  <!-- Description -->
-  <textarea class="desc-input" id="m-desc" rows="2"
-    placeholder="Brief description (e.g. wheel chock not working, plate not raising...)"
-    style="display:none;"></textarea>
-
-  <!-- TT link input -->
-  <div id="ttlink-wrap" style="display:none;margin-bottom:14px;">
-    <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;">
-      TT link (so everyone can check the status)
-    </label>
-    <div style="display:flex;gap:6px;align-items:center;">
-      <input id="m-ttlink" type="url"
-        placeholder="Paste the open TT link here..."
-        style="flex:1;padding:8px 10px;background:var(--surf3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;"
-        oninput="onTTLinkInput()" />
-      <button onclick="saveTTLinkOnly()" title="Guardar link"
-        style="padding:7px 10px;background:var(--orange);border:none;border-radius:5px;cursor:pointer;font-size:13px;">💾</button>
-    </div>
-    <div id="m-ttlink-preview" style="margin-top:6px;display:none;">
-      <a id="m-ttlink-href" href="#" target="_blank"
-        style="font-size:11px;color:var(--orange);word-break:break-all;">— view TT →</a>
-    </div>
-  </div>
-
-  <div class="action-btns" id="m-actions"></div>
-
-</div>
+<div class="modal" id="modal"></div>
 </div>
 
 <script src="config.js"></script>
@@ -429,38 +437,31 @@ main { padding: 12px 18px; }
 // ══════════════════════════════════════════════════════════
 const LINKS = FC_CONFIG.deptLinks;
 
-// Issue types → auto-route to dept
 const ISSUE_TYPES = [
-  { id: 'calzo',      label: '🔩 Wheel chock / Dock leveler',  dept: 'CBRE' },
-  { id: 'electrico',  label: '⚡ Electrical / Door',    dept: 'CBRE' },
-  { id: 'mecanico',   label: '🔧 General mechanical',       dept: 'CBRE' },
-  { id: 'bumper',     label: '🛑 Damaged bumper',          dept: 'CBRE' },
-  { id: 'quitamiedos',label: '🚧 Broken guardrail',       dept: 'CBRE' },
-  { id: 'calzada',    label: '🛣️ Road / Surface',        dept: 'CBRE' },
-  { id: 'senyal',     label: '⚠️ Signage / Marking',   dept: 'CBRE' },
-  { id: 'it',         label: '💻 IT / System / Network',     dept: 'IT'   },
-  { id: 'acceso',     label: '🔒 Access / CCTV',          dept: 'EUROCERN' },
-  { id: 'cambio',     label: '📋 Change / Other',          dept: 'CHANGE' },
+  { id: 'calzo',       label: '🔩 Wheel chock / Dock leveler', dept: 'CBRE' },
+  { id: 'electrico',   label: '⚡ Electrical / Door',          dept: 'CBRE' },
+  { id: 'mecanico',    label: '🔧 General mechanical',         dept: 'CBRE' },
+  { id: 'bumper',      label: '🛑 Damaged bumper',             dept: 'CBRE' },
+  { id: 'quitamiedos', label: '🚧 Broken guardrail',           dept: 'CBRE' },
+  { id: 'calzada',     label: '🛣️ Road / Surface',             dept: 'CBRE' },
+  { id: 'senyal',      label: '⚠️ Signage / Marking',          dept: 'CBRE' },
+  { id: 'it',          label: '💻 IT / System / Network',      dept: 'IT'   },
+  { id: 'acceso',      label: '🔒 Access / CCTV',              dept: 'EUROCERN' },
+  { id: 'cambio',      label: '📋 Change / Other',             dept: 'CHANGE' },
 ];
 
-// Dept-only locations (no issue-type routing, direct link)
 const DEPT_LOCS = new Set(['CBRE','EUROCERN','IT','CHANGE']);
-
 const DEPT_META = {
-  CBRE:     { name: 'CBRE / RME',   section: 'Facilities / Maintenance' },
-  EUROCERN: { name: 'EUROCERN',     section: 'Security / Access Control' },
-  IT:       { name: 'IT',           section: 'IT Support' },
-  CHANGE:   { name: 'CHANGE',       section: 'Change Management' },
+  CBRE:     { name: 'CBRE / RME',  section: 'Facilities / Maintenance' },
+  EUROCERN: { name: 'EUROCERN',    section: 'Security / Access Control' },
+  IT:       { name: 'IT',          section: 'IT Support' },
+  CHANGE:   { name: 'CHANGE',      section: 'Change Management' },
 };
 
 // ══════════════════════════════════════════════════════════
-// BUILD DOCK MAP
+// INFRA DINAMICA
 // ══════════════════════════════════════════════════════════
-// ══════════════════════════════════════════════════════════
-// INFRA DINÁMICA — zonas editables
-// ══════════════════════════════════════════════════════════
-const INFRA_KEY = (FC_CONFIG.name || 'fc') + '_infra_v1';
-
+const INFRA_KEY     = (FC_CONFIG.name || 'fc') + '_infra_v1';
 const INFRA_DEFAULT = FC_CONFIG.infraDefault;
 
 function loadInfra() {
@@ -475,10 +476,8 @@ function buildInfraSection(container) {
   infra.forEach((row, rowIdx) => {
     const div = document.createElement('div');
     div.className = 'btn-row';
-    div.dataset.rowIdx = rowIdx;
     div.innerHTML = `<div class="row-label" title="${row.label}">${row.label}</div>`;
     row.ids.forEach(id => div.appendChild(makeInfraBtn(id, rowIdx)));
-    // Botón + añadir
     const addBtn = document.createElement('button');
     addBtn.className = 'infra-add-btn';
     addBtn.textContent = '+ add';
@@ -490,113 +489,76 @@ function buildInfraSection(container) {
 
 function makeInfraBtn(id, rowIdx) {
   const btn = makeBtn(id);
-  btn.dataset.infraRow = rowIdx; // guardar zona para usarlo en el modal
+  btn.dataset.infraRow = rowIdx;
   return btn;
 }
 
 function addInfraItem(rowIdx) {
   const infra = loadInfra();
   const row   = infra[rowIdx];
-  // Generar nombre sugerido basado en el último de la fila
   const last  = row.ids[row.ids.length - 1] || '';
   const match = last.match(/·(\d+)$/);
   const next  = match ? (parseInt(match[1]) + 1) : (row.ids.length + 1);
   const base  = last.replace(/·\d+$/, '') || row.label.split('·')[0].trim();
-  const suggested = match ? `${base}·${next}` : `${base}·${next}`;
-  const name = prompt(`Nombre del nuevo elemento en "${row.label}":`, suggested);
+  const name  = prompt(`New element in "${row.label}":`, `${base}·${next}`);
   if (!name || !name.trim()) return;
   const newId = name.trim();
-  if (row.ids.includes(newId)) { alert('This ID already exists in this row.'); return; }
+  if (row.ids.includes(newId)) { alert('This ID already exists.'); return; }
   row.ids.push(newId);
-  saveInfra(infra);
-  const container = document.getElementById('infra-map');
-  buildInfraSection(container);
-  renderAll();
-}
-
-async function removeInfraItem(rowIdx, id) {
-  if (stateOf(id) !== 'ok') {
-    if (!confirm(`"${id}" tiene una incidencia activa. ¿Eliminar igualmente?`)) return;
-    delete state[id]; await upsertState(id, { status: 'ok' });
-  }
-  const infra = loadInfra();
-  infra[rowIdx].ids = infra[rowIdx].ids.filter(x => x !== id);
   saveInfra(infra);
   buildInfraSection(document.getElementById('infra-map'));
   renderAll();
 }
 
+// ══════════════════════════════════════════════════════════
+// BUILD MAP
+// ══════════════════════════════════════════════════════════
 function buildMap() {
-  // ── Drivers' Canteen ──
-  const canteenEl = document.getElementById('canteen-map');
-  [
-    { label: 'Canteen', ids: ['CANTEEN'] },
-  ].forEach(row => {
-    const div = document.createElement('div');
-    div.className = 'btn-row';
-    div.innerHTML = `<div class="row-label">${row.label}</div>`;
-    row.ids.forEach(id => div.appendChild(makeBtn(id)));
-    canteenEl.appendChild(div);
-  });
+  const cEl = document.getElementById('canteen-map');
+  const cdiv = document.createElement('div');
+  cdiv.className = 'btn-row';
+  cdiv.innerHTML = '<div class="row-label">Canteen</div>';
+  cdiv.appendChild(makeBtn('CANTEEN'));
+  cEl.appendChild(cdiv);
 
-  // ── GH Work Booths ──
   const ghEl = document.getElementById('gh-map');
-  [
-    { label: 'Garitas', ids: FC_CONFIG.garitas },
-  ].forEach(row => {
+  const gdiv = document.createElement('div');
+  gdiv.className = 'btn-row';
+  gdiv.innerHTML = '<div class="row-label">Garitas</div>';
+  FC_CONFIG.garitas.forEach(id => gdiv.appendChild(makeBtn(id)));
+  ghEl.appendChild(gdiv);
+
+  const ibEl = document.getElementById('ib-map');
+  const obEl = document.getElementById('ob-map');
+  FC_CONFIG.dockRows.forEach(row => {
+    const targetEl = row.label.startsWith('OB') ? obEl : ibEl;
     const div = document.createElement('div');
     div.className = 'btn-row';
     div.innerHTML = `<div class="row-label">${row.label}</div>`;
     row.ids.forEach(id => div.appendChild(makeBtn(id)));
-    ghEl.appendChild(div);
+    targetEl.appendChild(div);
   });
 
-  // ── Dock Doors ──
-  const dockEl = document.getElementById('dock-map');
-
-  const dockRows = FC_CONFIG.dockRows;
-
-  dockRows.forEach(row => {
-    const div = document.createElement('div');
-    div.className = 'btn-row';
-    div.innerHTML = `<div class="row-label">${row.label}</div>`;
-    row.ids.forEach(id => div.appendChild(makeBtn(id)));
-    dockEl.appendChild(div);
-  });
-
-  // ── Parking Slips ──
   const psEl = document.getElementById('ps-map');
-  const psGroups = [];
-  const psFrom = FC_CONFIG.psRange.from, psTo = FC_CONFIG.psRange.to;
+  const { from: psFrom, to: psTo } = FC_CONFIG.psRange;
   for (let i = psFrom; i <= psTo; i += 20) {
-    const ids = [];
-    for (let j = i; j < i + 20 && j <= psTo; j++) {
-      ids.push('PS' + String(j).padStart(3, '0'));
-    }
-    psGroups.push({ label: `PS${String(i).padStart(3,'0')}–${String(Math.min(i+19,psTo)).padStart(3,'0')}`, ids });
-  }
-  psGroups.forEach(row => {
     const div = document.createElement('div');
     div.className = 'btn-row';
-    div.innerHTML = `<div class="row-label">${row.label}</div>`;
-    row.ids.forEach(id => div.appendChild(makeBtn(id)));
+    div.innerHTML = `<div class="row-label">PS${String(i).padStart(3,'0')}-${String(Math.min(i+19,psTo)).padStart(3,'0')}</div>`;
+    for (let j = i; j < i + 20 && j <= psTo; j++) div.appendChild(makeBtn('PS' + String(j).padStart(3,'0')));
     psEl.appendChild(div);
-  });
+  }
 
-  // ── Bumpers & Infrastructure ──
-  const infraEl = document.getElementById('infra-map');
-  buildInfraSection(infraEl);
+  buildInfraSection(document.getElementById('infra-map'));
 
-  // ── PRE / TP / Residuos ──
   const preEl = document.getElementById('pre-map');
   const preIds = [];
   for (let i = FC_CONFIG.preRange.from; i <= FC_CONFIG.preRange.to; i++) preIds.push('PRE-' + String(i).padStart(3,'0'));
   const tpIds = [];
   for (let i = FC_CONFIG.tpRange.from; i <= FC_CONFIG.tpRange.to; i++) tpIds.push('TP-' + String(i).padStart(2,'0'));
-
   [
-    { label: 'PRE', ids: preIds },
-    { label: 'TP',  ids: tpIds },
+    { label: 'PRE',   ids: preIds },
+    { label: 'TP',    ids: tpIds },
     { label: 'OTROS', ids: FC_CONFIG.otherSlips },
   ].forEach(row => {
     const div = document.createElement('div');
@@ -610,14 +572,14 @@ function buildMap() {
 function makeBtn(id) {
   const btn = document.createElement('button');
   btn.className = 'loc-btn s-ok';
-  btn.id = 'btn-' + id;
-  btn.innerHTML = `<span class="loc-name">${id} <span class="loc-linkdot" id="lnk-${id}" style="display:none">🔗</span></span><span class="loc-issue" id="iss-${id}"></span>`;
+  btn.id  = 'btn-' + id;
+  btn.innerHTML = `<span class="loc-name">${id}</span><span class="loc-issue" id="iss-${id}"></span>`;
   btn.onclick = () => openModal(id);
   return btn;
 }
 
 // ══════════════════════════════════════════════════════════
-// SUPABASE — shared state across all PCs
+// SUPABASE
 // ══════════════════════════════════════════════════════════
 const SUPA_URL  = FC_CONFIG.supabase.url;
 const SUPA_KEY  = FC_CONFIG.supabase.anonKey;
@@ -625,8 +587,19 @@ const FC_NAME   = FC_CONFIG.name;
 const SUPA_HDR  = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY };
 const SUPA_JSON = { ...SUPA_HDR, 'Content-Type': 'application/json' };
 
-let state = {};
-let log   = [];
+// state[loc_id] = [ { issue_id, status, issue, desc, ttLink, time }, ... ]
+let state   = {};
+let blocked = new Set();
+let log     = [];
+
+function issuesOf(id)  { return state[id] || []; }
+function countOf(id)   { return issuesOf(id).length; }
+function stateOf(id) {
+  const iss = issuesOf(id);
+  if (!iss.length) return 'ok';
+  if (iss.some(i => i.status === 'open')) return 'open';
+  return 'tracking';
+}
 
 async function fetchState() {
   try {
@@ -635,25 +608,103 @@ async function fetchState() {
     if (!Array.isArray(rows)) return;
     state = {};
     rows.forEach(row => {
-      state[row.loc_id] = { status: row.status, issue: row.issue, desc: row.description, time: row.time_set, ttLink: row.tt_link };
+      if (!state[row.loc_id]) state[row.loc_id] = [];
+      state[row.loc_id].push({ issue_id: row.issue_id, status: row.status, issue: row.issue, desc: row.description, time: row.time_set, ttLink: row.tt_link });
     });
   } catch(e) { console.warn('fetchState error', e); }
 }
 
-async function upsertState(id, data) {
+async function addIssueToState(loc_id, data) {
+  const now = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
   try {
-    if (data.status === 'ok') {
-      await fetch(`${SUPA_URL}/rest/v1/issue_states?loc_id=eq.${encodeURIComponent(id)}&fc_name=eq.${FC_NAME}`, {
-        method: 'DELETE', headers: SUPA_HDR
-      });
-    } else {
-      await fetch(`${SUPA_URL}/rest/v1/issue_states`, {
-        method: 'POST',
-        headers: { ...SUPA_JSON, 'Prefer': 'resolution=merge-duplicates' },
-        body: JSON.stringify({ loc_id: id, fc_name: FC_NAME, status: data.status, issue: data.issue || '', description: data.desc || '', time_set: data.time || '', tt_link: data.ttLink || '' })
-      });
+    const r = await fetch(`${SUPA_URL}/rest/v1/issue_states`, {
+      method: 'POST',
+      headers: { ...SUPA_JSON, 'Prefer': 'return=representation' },
+      body: JSON.stringify({ fc_name: FC_NAME, loc_id, status: data.status||'open', issue: data.issue||'', description: data.desc||'', time_set: now, tt_link: data.ttLink||'' })
+    });
+    const rows = await r.json();
+    const issue_id = rows[0]?.issue_id;
+    if (!state[loc_id]) state[loc_id] = [];
+    state[loc_id].push({ issue_id, status: data.status||'open', issue: data.issue||'', desc: data.desc||'', time: now, ttLink: data.ttLink||'' });
+    return issue_id;
+  } catch(e) { console.warn('addIssueToState error', e); }
+}
+
+async function resolveIssueFromState(issue_id, loc_id) {
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/issue_states?issue_id=eq.${issue_id}`, { method: 'DELETE', headers: SUPA_HDR });
+    if (state[loc_id]) {
+      state[loc_id] = state[loc_id].filter(i => i.issue_id !== issue_id);
+      if (!state[loc_id].length) delete state[loc_id];
     }
-  } catch(e) { console.warn('upsertState error', e); }
+  } catch(e) { console.warn('resolveIssue error', e); }
+}
+
+async function updateIssueStatus(issue_id, loc_id, newStatus) {
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/issue_states?issue_id=eq.${issue_id}`, {
+      method: 'PATCH', headers: SUPA_JSON, body: JSON.stringify({ status: newStatus })
+    });
+    if (state[loc_id]) {
+      const iss = state[loc_id].find(i => i.issue_id === issue_id);
+      if (iss) iss.status = newStatus;
+    }
+  } catch(e) { console.warn('updateIssue error', e); }
+}
+
+async function updateIssueTTLink(issue_id, loc_id, ttLink) {
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/issue_states?issue_id=eq.${issue_id}`, {
+      method: 'PATCH', headers: SUPA_JSON, body: JSON.stringify({ tt_link: ttLink })
+    });
+    if (state[loc_id]) {
+      const iss = state[loc_id].find(i => i.issue_id === issue_id);
+      if (iss) iss.ttLink = ttLink;
+    }
+  } catch(e) { console.warn('updateIssueTTLink error', e); }
+}
+
+async function setDeptStatus(deptId, newStatus) {
+  await fetch(`${SUPA_URL}/rest/v1/issue_states?fc_name=eq.${FC_NAME}&loc_id=eq.${encodeURIComponent(deptId)}`, { method: 'DELETE', headers: SUPA_HDR });
+  delete state[deptId];
+  if (newStatus !== 'ok') await addIssueToState(deptId, { status: newStatus, issue: 'Dept status' });
+  renderAll();
+  closeModal();
+  const logAct = newStatus === 'ok' ? 'Status resolved' : newStatus === 'open' ? 'TT opened' : 'In progress';
+  await addLog(deptId, logAct, newStatus === 'ok' ? 'resolve' : newStatus === 'open' ? 'open' : 'track', 'Dept');
+}
+
+async function fetchBlocked() {
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/loc_blocked?fc_name=eq.${FC_NAME}&select=loc_id`, { headers: SUPA_HDR });
+    const rows = await r.json();
+    if (!Array.isArray(rows)) return;
+    blocked = new Set(rows.map(r => r.loc_id));
+  } catch(e) { console.warn('fetchBlocked error', e); }
+}
+
+async function blockLoc(id) {
+  closeModal();
+  const reason = prompt(`Reason for "${id}" out of service (optional):`, '') ?? '';
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/loc_blocked`, {
+      method: 'POST', headers: { ...SUPA_JSON, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ fc_name: FC_NAME, loc_id: id, reason })
+    });
+    blocked.add(id);
+  } catch(e) { console.warn('blockLoc error', e); }
+  renderAll();
+  await addLog(id, 'Out of service', 'block', reason || '');
+}
+
+async function unblockLoc(id) {
+  try {
+    await fetch(`${SUPA_URL}/rest/v1/loc_blocked?fc_name=eq.${FC_NAME}&loc_id=eq.${encodeURIComponent(id)}`, { method: 'DELETE', headers: SUPA_HDR });
+    blocked.delete(id);
+  } catch(e) { console.warn('unblockLoc error', e); }
+  renderAll();
+  closeModal();
+  await addLog(id, 'Back in service', 'resolve', '');
 }
 
 async function fetchLog() {
@@ -667,74 +718,15 @@ async function fetchLog() {
 
 async function insertLog(loc, action, type, issue) {
   const _now = new Date();
-  const timeLabel = _now.toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit' }) + ' ' +
-                    _now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+  const tl = _now.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit'}) + ' ' + _now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
   try {
     await fetch(`${SUPA_URL}/rest/v1/issue_log`, {
-      method: 'POST',
-      headers: SUPA_JSON,
-      body: JSON.stringify({ fc_name: FC_NAME, loc_id: loc, action, log_type: type, issue: issue || '', time_label: timeLabel })
+      method: 'POST', headers: SUPA_JSON,
+      body: JSON.stringify({ fc_name: FC_NAME, loc_id: loc, action, log_type: type, issue: issue||'', time_label: tl })
     });
-    log.unshift({ time: timeLabel, loc, action, type, issue: issue || '' });
+    log.unshift({ time: tl, loc, action, type, issue: issue||'' });
     if (log.length > 80) log.pop();
   } catch(e) { console.warn('insertLog error', e); }
-}
-
-// Auto-refresh each 15s — keeps all PCs in sync
-async function autoRefresh() {
-  await fetchState();
-  await fetchLog();
-  renderAll();
-  renderLog();
-}
-setInterval(autoRefresh, 15000);
-
-function stateOf(id)    { return state[id]?.status || 'ok'; }
-function issueOf(id)    { return state[id]?.issue  || ''; }
-function descOf(id)     { return state[id]?.desc   || ''; }
-function timeOf(id)     { return state[id]?.time   || ''; }
-function ttLinkOf(id)   { return state[id]?.ttLink || ''; }
-
-// ══════════════════════════════════════════════════════════
-// RENDER
-// ══════════════════════════════════════════════════════════
-function statusLabel(s) {
-  return s === 'open' ? 'TT open ⚠️' : s === 'tracking' ? 'In progress' : 'No issues';
-}
-
-function renderAll() {
-  let ok = 0, open = 0, track = 0;
-  document.querySelectorAll('.loc-btn').forEach(btn => {
-    const id = btn.id.replace('btn-', '');
-    const s  = stateOf(id);
-    btn.className = 'loc-btn s-' + (s === 'tracking' ? 'tracking' : s === 'open' ? 'open' : 'ok');
-    if (DEPT_LOCS.has(id)) btn.classList.add('dept-btn-big');
-    const issEl = document.getElementById('iss-' + id);
-    if (issEl) issEl.textContent = s !== 'ok' ? (issueOf(id) || '') : '';
-    if (s === 'open') { btn.setAttribute('data-tip', descOf(id) || issueOf(id) || 'TT activo'); open++; }
-    else { btn.removeAttribute('data-tip'); }
-    const lnkEl = document.getElementById('lnk-' + id);
-    if (lnkEl) lnkEl.style.display = (s !== 'ok' && ttLinkOf(id)) ? 'inline' : 'none';
-    if (s === 'ok')   ok++;
-    if (s === 'tracking') track++;
-  });
-  document.getElementById('c-ok').textContent    = ok;
-  document.getElementById('c-open').textContent   = open;
-  document.getElementById('c-track').textContent  = track;
-  document.getElementById('tt-count').innerHTML = `Active TTs: <span>${open}</span>`;
-}
-
-function renderLog() {
-  const el = document.getElementById('log-list');
-  if (!log.length) { el.innerHTML = '<div style="color:var(--muted);padding:4px 8px;">No activity yet.</div>'; return; }
-  el.innerHTML = [...log].reverse().map(e =>
-    `<div class="log-row l-${e.type}">
-      <span class="log-time">${e.time}</span>
-      <span class="log-loc">${e.loc}</span>
-      <span class="log-act">${e.action}</span>
-      ${e.issue ? `<span class="log-iss">[${e.issue}]</span>` : ''}
-    </div>`
-  ).join('');
 }
 
 async function addLog(loc, action, type, issue = '') {
@@ -742,300 +734,307 @@ async function addLog(loc, action, type, issue = '') {
   renderLog();
 }
 
+async function autoRefresh() {
+  await fetchState(); await fetchBlocked(); await fetchLog();
+  renderAll(); renderLog();
+}
+setInterval(autoRefresh, 15000);
+
+// ══════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════
+function renderAll() {
+  let ok = 0, open = 0, track = 0;
+  document.querySelectorAll('.loc-btn').forEach(btn => {
+    const id    = btn.id.replace('btn-', '');
+    const s     = stateOf(id);
+    const isBlk = blocked.has(id);
+    const count = countOf(id);
+    let cls = 'loc-btn s-' + (s === 'open' ? 'open' : s === 'tracking' ? 'tracking' : 'ok');
+    if (isBlk)  cls += ' s-blocked';
+    if (DEPT_LOCS.has(id)) cls += ' dept-btn-big';
+    btn.className = cls;
+    const issEl = document.getElementById('iss-' + id);
+    if (issEl) {
+      const parts = [];
+      if (count > 1) parts.push(`[${count}]`);
+      else if (count === 1) {
+        const short = issuesOf(id)[0].issue.replace(/^[^\s]+\s/,'').substring(0,10);
+        if (short) parts.push(short);
+      }
+      if (isBlk) parts.push('⛔');
+      issEl.textContent = parts.join(' ');
+    }
+    if (s === 'open') {
+      btn.setAttribute('data-tip', issuesOf(id).map(i=>i.issue||i.desc).filter(Boolean).join(' · ') || 'TT active');
+      open++;
+    } else btn.removeAttribute('data-tip');
+    if (s === 'ok' && !isBlk) ok++;
+    if (s === 'tracking') track++;
+  });
+  document.getElementById('c-ok').textContent    = ok;
+  document.getElementById('c-open').textContent  = open;
+  document.getElementById('c-track').textContent = track;
+  document.getElementById('tt-count').innerHTML  = `Active TTs: <span>${open}</span>`;
+}
+
+function renderLog() {
+  const el = document.getElementById('log-list');
+  if (!log.length) { el.innerHTML = '<div style="color:var(--muted);padding:4px 8px;">No activity yet.</div>'; return; }
+  el.innerHTML = log.map(e =>
+    `<div class="log-row l-${e.type}"><span class="log-time">${e.time}</span><span class="log-loc">${e.loc}</span><span class="log-act">${e.action}</span>${e.issue?`<span class="log-iss">[${e.issue}]</span>`:''}</div>`
+  ).join('');
+}
+
 // ══════════════════════════════════════════════════════════
 // MODAL
 // ══════════════════════════════════════════════════════════
-let curId       = null;
-let curIssueId  = null;
+let curId = null, curIssueTypeId = null;
 
 function openModal(id) {
-  curId      = id;
-  curIssueId = null;
-  const s    = stateOf(id);
+  curId = id; curIssueTypeId = null;
+  const m = document.getElementById('modal');
   const isDept = DEPT_LOCS.has(id);
+  const issues = issuesOf(id);
+  const s      = stateOf(id);
+  const isBlk  = blocked.has(id);
+  const name   = isDept ? (DEPT_META[id]?.name || id) : id;
+  const section = isDept ? (DEPT_META[id]?.section || '') : getSectionName(id);
 
-  // Header
-  const meta = DEPT_META[id];
-  document.getElementById('m-badge').textContent  = id;
-  document.getElementById('m-badge').className    = 'badge s-' + s;
-  document.getElementById('m-name').textContent   = meta ? meta.name : id;
-  document.getElementById('m-section').textContent = meta ? meta.section : getSectionName(id);
-  document.getElementById('m-statuslbl').textContent = statusLabel(s);
-  const idesc = descOf(id);
-  document.getElementById('m-issuedesc').textContent = idesc ? `— ${idesc}` : '';
-
-  // Issue type grid — only for location buttons (not depts)
-  const selEl = document.getElementById('issue-selector');
-  const grid  = document.getElementById('issue-type-grid');
-  const descEl = document.getElementById('m-desc');
-
-  if (!isDept && s === 'ok') {
-    selEl.style.display = 'block';
-    descEl.style.display = 'block';
-    descEl.value = '';
-    grid.innerHTML = '';
-    ISSUE_TYPES.forEach(it => {
-      const btn = document.createElement('button');
-      btn.className = 'issue-type-btn';
-      btn.textContent = it.label;
-      btn.onclick = () => {
-        curIssueId = it.id;
-        grid.querySelectorAll('.issue-type-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        renderModalActions();
-      };
-      grid.appendChild(btn);
-    });
+  const statusColor = s==='open'?'var(--red-h)':s==='tracking'?'var(--amber-h)':'var(--green-h)';
+  let statusTxt;
+  if (isDept) {
+    statusTxt = s==='open'?'🔴 TT open':s==='tracking'?'🟡 In progress':'🟢 No issues';
   } else {
-    selEl.style.display = 'none';
-    descEl.style.display = 'none';
+    const parts = issues.length===0 ? ['🟢 No issues'] : [issues.length===1?'🔴 1 active issue':`🔴 ${issues.length} active issues`];
+    if (isBlk) parts.push('⛔ Out of service');
+    statusTxt = parts.join(' · ');
   }
 
-  // TT link field — visible siempre que haya incidencia activa o al reportar nueva
-  const ttWrap  = document.getElementById('ttlink-wrap');
-  const ttInput = document.getElementById('m-ttlink');
-  const ttPreview = document.getElementById('m-ttlink-preview');
-  const ttHref    = document.getElementById('m-ttlink-href');
-  const existingLink = ttLinkOf(id);
+  let html = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div class="badge s-${s}">${id}</div>
+      <div style="flex:1;"><div class="modal-locname">${name}</div><div class="modal-section">${section}</div></div>
+      <button onclick="closeModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0 4px;line-height:1;">×</button>
+    </div>
+    <div class="modal-status-box" style="font-weight:700;color:${statusColor};">${statusTxt}</div>`;
 
-  ttWrap.style.display = 'block';
-  ttInput.value = existingLink;
-  if (existingLink) {
-    ttPreview.style.display = 'block';
-    ttHref.href = existingLink;
-    ttHref.textContent = existingLink;
+  if (isDept) {
+    html += buildDeptSection(id, s);
   } else {
-    ttPreview.style.display = 'none';
+    if (issues.length > 0) {
+      html += `<div class="modal-section-lbl">Active Issues</div>`;
+      issues.forEach(iss => { html += buildIssueCard(id, iss); });
+      html += `<button class="add-issue-btn" id="add-issue-toggle" onclick="toggleNewIssueForm()">➕ Report another issue</button>`;
+    }
+    html += `<div id="new-issue-form"${issues.length>0?' style="display:none"':''}>`;
+    html += buildNewIssueForm();
+    html += `</div>`;
+    html += '<hr class="modal-sep">';
+    if (isBlk) {
+      html += `<div class="blocked-bar"><span class="blocked-bar-lbl">⛔ Out of service</span><button class="sm-btn sm-green" onclick="unblockLoc('${id}')">✅ Back in service</button></div>`;
+    } else {
+      html += `<button class="add-issue-btn" onclick="blockLoc('${id}')" style="border-color:#5a3535;color:#c07070;">⛔ Mark as out of service</button>`;
+    }
   }
 
-  renderModalActions();
+  html += '<hr class="modal-sep">';
+  html += `<button class="abtn abtn-ghost" onclick="closeModal()">Cancel</button>`;
+  m.innerHTML = html;
   document.getElementById('overlay').classList.add('show');
 }
 
-async function renderModalActions() {
-  const s      = stateOf(curId);
-  const isDept = DEPT_LOCS.has(curId);
-  const el     = document.getElementById('m-actions');
-  el.innerHTML = '';
-
-  if (isDept) {
-    // Dept buttons: direct open TT link + status change
-    const deptKey = curId;
-    const link = LINKS[deptKey] || LINKS.CHANGE;
-    addAbtn(el, 'abtn-orange', '🔗 ' + link.label, () => window.open(link.url, '_blank'));
-    addSep(el);
-    if (s !== 'open')     addAbtn(el, 'abtn-red',   '🔴 Mark TT as open',     () => { const ttl = document.getElementById('m-ttlink').value.trim(); setStatus(curId, 'open', '', '', ttl); });
-    if (s !== 'tracking') addAbtn(el, 'abtn-amber',  '🟡 In progress',         () => setStatus(curId, 'tracking', '', ''));
-    if (s !== 'ok')       addAbtn(el, 'abtn-green', '✅ Resolved — close TT',   () => setStatus(curId, 'ok', '', ''));
-  } else if (s === 'ok') {
-    // Location: open TT flow
-    if (curIssueId) {
-      const it   = ISSUE_TYPES.find(x => x.id === curIssueId);
-      const link = LINKS[it.dept];
-      addAbtn(el, 'abtn-orange', `🎫 Abrir TT → ${link.label}`, () => {
-        window.open(link.url, '_blank');
-        const desc = document.getElementById('m-desc').value.trim();
-        const ttl  = document.getElementById('m-ttlink').value.trim();
-        setStatus(curId, 'open', it.label, desc || it.label, ttl);
-      });
-      addSep(el);
-      addAbtn(el, 'abtn-red', '🔴 Mark as open only (no link)', () => {
-        const desc = document.getElementById('m-desc').value.trim();
-        const ttl  = document.getElementById('m-ttlink').value.trim();
-        setStatus(curId, 'open', it.label, desc || it.label, ttl);
-      });
-    } else {
-      const infoDiv = document.createElement('div');
-      infoDiv.style.cssText = 'font-size:11px;color:var(--muted);text-align:center;padding:8px;';
-      infoDiv.textContent = 'Select the issue type to continue.';
-      el.appendChild(infoDiv);
-    }
-  } else {
-    // Already open/tracking: manage
-    const storedLink = ttLinkOf(curId);
-    if (storedLink) {
-      addAbtn(el, 'abtn-orange', '🔗 Open saved TT', () => window.open(storedLink, '_blank'));
-    } else {
-      const issue = issueOf(curId);
-      const deptKey = issue ? (ISSUE_TYPES.find(x => x.label === issue)?.dept || 'CHANGE') : 'CHANGE';
-      const link = LINKS[deptKey] || LINKS.CHANGE;
-      addAbtn(el, 'abtn-orange', `🔗 Ir al portal (${link.label})`, () => window.open(link.url, '_blank'));
-    }
-    addSep(el);
-    if (s !== 'tracking') addAbtn(el, 'abtn-amber', '🟡 Move to in progress',      () => setStatus(curId, 'tracking', issueOf(curId), descOf(curId)));
-    if (s !== 'open')     addAbtn(el, 'abtn-red',   '🔴 Mark TT as open',        () => setStatus(curId, 'open',     issueOf(curId), descOf(curId)));
-    addAbtn(el, 'abtn-green', '✅ Resolved — close TT', () => setStatus(curId, 'ok', '', ''));
-  }
-
-  // Opción eliminar — solo para elementos de infraestructura dinámica
-  if (isInfraId(curId)) {
-    addSep(el);
-    const delBtn = document.createElement('button');
-    delBtn.className = 'abtn';
-    delBtn.style.cssText = 'background:transparent;border:1px solid #5a2020;color:#c06060;width:100%;padding:9px;border-radius:6px;cursor:pointer;font-size:12px;';
-    delBtn.innerHTML = '🗑 Remove this item from the list';
-    delBtn.onclick = async () => {
-      if (confirm(`¿Eliminar "${curId}" de la sección de infraestructura?\nSi tiene incidencia activa también se borrará.`)) {
-        const infra = loadInfra();
-        let removed = false;
-        infra.forEach(row => {
-          const i = row.ids.indexOf(curId);
-          if (i !== -1) { row.ids.splice(i, 1); removed = true; }
-        });
-        if (removed) {
-          if (state[curId]) { delete state[curId]; await upsertState(curId, { status: 'ok' }); }
-          saveInfra(infra);
-          buildInfraSection(document.getElementById('infra-map'));
-          renderAll();
-        }
-        closeModal();
-      }
-    };
-    el.appendChild(delBtn);
-  }
-
-  addSep(el);
-  addAbtn(el, 'abtn-ghost', 'Cancel', closeModal);
+function buildDeptSection(id, s) {
+  const link = LINKS[id] || LINKS.CHANGE;
+  let html = '<div class="action-btns">';
+  html += `<button class="abtn abtn-orange" onclick="window.open('${link.url}','_blank')">🔗 ${link.label}</button>`;
+  html += '<hr class="modal-sep">';
+  if (s!=='open')     html += `<button class="abtn abtn-red"   onclick="setDeptStatus('${id}','open')">🔴 Mark TT as open</button>`;
+  if (s!=='tracking') html += `<button class="abtn abtn-amber" onclick="setDeptStatus('${id}','tracking')">🟡 In progress</button>`;
+  if (s!=='ok')       html += `<button class="abtn abtn-green" onclick="setDeptStatus('${id}','ok')">✅ Resolved</button>`;
+  html += '</div>';
+  return html;
 }
 
-function isInfraId(id) {
-  return id.startsWith('B·') || id.startsWith('QM·') ||
-         id.startsWith('VIA·') || id.startsWith('SÑL·') || id.startsWith('MARCA·');
+function buildIssueCard(locId, iss) {
+  const iid = iss.issue_id;
+  const esc = s => (s||'').replace(/'/g,"\\'").replace(/</g,'&lt;');
+  const ttBtn   = iss.ttLink ? `<button class="sm-btn sm-link" onclick="window.open('${esc(iss.ttLink)}','_blank')">🔗 TT</button>` : '';
+  const trackBtn = iss.status!=='tracking' ? `<button class="sm-btn sm-amber" onclick="doUpdateIssue('${iid}','${locId}','tracking')">🟡 In progress</button>` : '';
+  const openBtn  = iss.status!=='open'     ? `<button class="sm-btn sm-red"   onclick="doUpdateIssue('${iid}','${locId}','open')">🔴 Open</button>` : '';
+  const saveLinkHtml = `
+    <div style="display:flex;gap:5px;margin-top:6px;">
+      <input type="url" id="ttl-${iid}" placeholder="Paste / update TT link..."
+        value="${esc(iss.ttLink||'')}"
+        style="flex:1;padding:5px 8px;background:var(--surf3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:11px;" />
+      <button class="sm-btn sm-link" onclick="doSaveTTLink('${iid}','${locId}')">💾</button>
+    </div>`;
+  const descHtml = (iss.desc && iss.desc!==iss.issue) ? `<div class="issue-card-desc">${esc(iss.desc)}</div>` : '';
+  return `<div class="issue-card">
+    <div class="issue-card-top">
+      <span class="issue-card-lbl">${esc(iss.issue)||'Issue'}</span>
+      <span class="issue-card-time">${iss.time||''}</span>
+      <span class="sbadge ${iss.status}">${iss.status==='open'?'🔴 TT open':'🟡 In progress'}</span>
+    </div>
+    ${descHtml}
+    <div class="issue-card-btns">${ttBtn}${trackBtn}${openBtn}
+      <button class="sm-btn sm-green" onclick="doResolveIssue('${iid}','${locId}','${esc(iss.issue||'')}')">✅ Resolve</button>
+    </div>
+    ${saveLinkHtml}
+  </div>`;
 }
 
-// Actualiza preview en tiempo real al escribir/pegar el link
-function onTTLinkInput() {
-  const val = document.getElementById('m-ttlink').value.trim();
-  const preview = document.getElementById('m-ttlink-preview');
-  const href    = document.getElementById('m-ttlink-href');
-  if (val) {
-    preview.style.display = 'block';
-    href.href = val;
-    href.textContent = val;
-  } else {
-    preview.style.display = 'none';
-  }
-  // Si ya hay TT activo, actualizar link en estado al vuelo (se guarda al cerrar modal)
-  if (curId && stateOf(curId) !== 'ok') {
-    if (state[curId]) {
-      state[curId].ttLink = val;
-      renderAll();
-    }
-  }
+function buildNewIssueForm() {
+  let html = `<div class="modal-section-lbl">Issue Type</div>`;
+  html += '<div class="issue-type-grid" id="issue-type-grid">';
+  ISSUE_TYPES.forEach(it => {
+    html += `<button class="issue-type-btn" id="ityp-${it.id}" onclick="selectIssueType('${it.id}')">${it.label}</button>`;
+  });
+  html += '</div>';
+  html += `<textarea class="desc-input" id="m-desc" rows="2" placeholder="Brief description (optional)..." style="margin-top:10px;"></textarea>`;
+  html += `<div style="margin-bottom:12px;">
+    <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;">TT Link (optional)</label>
+    <input id="m-ttlink" type="url" placeholder="Paste TT link here..."
+      style="width:100%;padding:8px 10px;background:var(--surf3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;" />
+  </div>`;
+  html += '<div id="m-new-actions" class="action-btns"><div style="font-size:11px;color:var(--muted);text-align:center;padding:6px;">← Select issue type to continue</div></div>';
+  return html;
 }
 
-// Guardar solo el link sin cambiar el estado (botón 💾)
-async function saveTTLinkOnly() {
-  if (!curId) return;
-  const val = document.getElementById('m-ttlink').value.trim();
-  if (stateOf(curId) !== 'ok') {
-    if (!state[curId]) state[curId] = { status: 'tracking', issue: '', desc: '', time: '', ttLink: '' };
-    state[curId].ttLink = val;
-    renderAll();
-    await upsertState(curId, state[curId]);
-    await addLog(curId, 'TT link updated', stateOf(curId) === 'open' ? 'open' : 'track');
-  }
+function toggleNewIssueForm() {
+  const f = document.getElementById('new-issue-form');
+  const b = document.getElementById('add-issue-toggle');
+  if (!f) return;
+  const show = f.style.display !== 'none';
+  f.style.display = show ? 'none' : 'block';
+  if (b) b.textContent = show ? '➕ Report another issue' : '▲ Hide';
 }
 
-function addAbtn(parent, cls, label, fn) {
-  const b = document.createElement('button');
-  b.className = 'abtn ' + cls;
-  b.innerHTML = label;
-  b.onclick   = fn;
-  parent.appendChild(b);
-}
-function addSep(parent) {
-  const hr = document.createElement('hr');
-  hr.className = 'modal-sep';
-  parent.appendChild(hr);
+function selectIssueType(typeId) {
+  curIssueTypeId = typeId;
+  document.querySelectorAll('.issue-type-btn').forEach(b => b.classList.remove('selected'));
+  const btn = document.getElementById('ityp-' + typeId);
+  if (btn) btn.classList.add('selected');
+  const it   = ISSUE_TYPES.find(x => x.id === typeId);
+  const link = LINKS[it.dept];
+  const actEl = document.getElementById('m-new-actions');
+  if (!actEl) return;
+  actEl.innerHTML = `
+    <button class="abtn abtn-orange" onclick="doOpenTT()">🎫 Open TT portal → ${link.label}</button>
+    <hr class="modal-sep">
+    <button class="abtn abtn-red" onclick="doSaveOnly()">🔴 Save</button>`;
 }
 
-async function setStatus(id, newStatus, issue, desc, ttLink) {
-  const now = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
-  if (newStatus === 'ok') {
-    delete state[id];
-  } else {
-    const existingLink = ttLink !== undefined ? ttLink : ttLinkOf(id);
-    state[id] = { status: newStatus, issue, desc, time: now, ttLink: existingLink };
-  }
-  renderAll();
-  closeModal();
-  await upsertState(id, newStatus === 'ok' ? { status: 'ok' } : state[id]);
-  const logType = newStatus === 'ok' ? 'resolve' : newStatus === 'open' ? 'open' : 'track';
-  const logAct  = newStatus === 'ok' ? 'Issue resolved' : newStatus === 'open' ? 'TT opened' : 'In progress';
-  await addLog(id, logAct, logType, issue);
+async function doOpenTT() {
+  if (!curIssueTypeId || !curId) return;
+  const it = ISSUE_TYPES.find(x => x.id === curIssueTypeId);
+  window.open(LINKS[it.dept].url, '_blank');
+  await doReportIssue('open');
+}
+
+async function doSaveOnly() {
+  if (!curIssueTypeId || !curId) return;
+  await doReportIssue('open');
+}
+
+async function doReportIssue(status) {
+  const it     = ISSUE_TYPES.find(x => x.id === curIssueTypeId);
+  const desc   = document.getElementById('m-desc')?.value.trim() || '';
+  const ttLink = document.getElementById('m-ttlink')?.value.trim() || '';
+  await addIssueToState(curId, { status, issue: it.label, desc: desc||it.label, ttLink });
+  renderAll(); closeModal();
+  await addLog(curId, `TT: ${it.label}`, 'open', it.label);
+}
+
+async function doResolveIssue(issueId, locId, issueLabel) {
+  await resolveIssueFromState(issueId, locId);
+  renderAll(); closeModal();
+  await addLog(locId, `Resolved: ${issueLabel}`, 'resolve', issueLabel);
+}
+
+async function doUpdateIssue(issueId, locId, newStatus) {
+  await updateIssueStatus(issueId, locId, newStatus);
+  renderAll(); openModal(locId);
+  await addLog(locId, newStatus==='open'?'TT re-opened':'In progress', newStatus==='open'?'open':'track', '');
+}
+
+async function doSaveTTLink(issueId, locId) {
+  const input = document.getElementById('ttl-' + issueId);
+  if (!input) return;
+  const val = input.value.trim();
+  await updateIssueTTLink(issueId, locId, val);
+  renderAll(); openModal(locId);
+  await addLog(locId, 'TT link updated', stateOf(locId)==='open'?'open':'track', '');
 }
 
 function getSectionName(id) {
-  if (id.startsWith('CANT')) return "Drivers' Canteen";
-  if (id.startsWith('GHV') || id.startsWith('GH')) return 'GH Work Booth';
-  if (id.startsWith('IB'))  return 'Inbound Dock';
-  if (id.startsWith('OB'))  return 'Outbound Dock';
-  if (id.startsWith('PS'))  return 'Parking Slot';
+  if (id==='CANTEEN')    return "Drivers' Canteen";
+  if (id.startsWith('V'))  return 'GH Work Booth';
+  if (id.startsWith('IB')) return 'Inbound Dock';
+  if (id.startsWith('OB')) return 'Outbound Dock';
+  if (id.startsWith('PS')) return 'Parking Slot';
   if (id.startsWith('PRE')) return 'PRE Zone';
-  if (id.startsWith('TP'))  return 'TP Zone';
-  if (id.includes('SAYCA') || id.includes('RAMP')) return 'Ramp / SAYCA';
-  if (id.startsWith('B·'))    return 'Bumper — ' + (id.includes('IB') ? 'IB Zone' : id.includes('OB·A') ? 'OB-A Zone' : id.includes('OB·B') ? 'OB-B Zone' : 'GH Zone');
-  if (id.startsWith('QM·'))   return 'Guardrail — ' + (id.includes('IB') ? 'IB Zone' : id.includes('OB·A') ? 'OB-A Zone' : id.includes('OB·B') ? 'OB-B Zone' : 'GH Zone');
+  if (id.startsWith('TP')) return 'TP Zone';
+  if (id.includes('SAYCA')||id.includes('RAMP')) return 'Ramp / SAYCA';
+  if (id.startsWith('B·'))    return 'Bumper';
+  if (id.startsWith('QM·'))   return 'Guardrail';
   if (id.startsWith('VIA·'))  return 'Road / Surface';
-  if (id.startsWith('SÑL·') || id.startsWith('MARCA·')) return 'Signage';
+  if (id.startsWith('SÑL·')||id.startsWith('MARCA·')) return 'Signage';
   return 'BCN1';
 }
 
 function closeModal() {
   document.getElementById('overlay').classList.remove('show');
-  curId = null; curIssueId = null;
+  curId = null; curIssueTypeId = null;
 }
-function overlayClick(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeAddFC(); } });
+function overlayClick(e) { if (e.target===document.getElementById('overlay')) closeModal(); }
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
 
-// ══════════════════════════════════════════════════════════
-// CLOCK
-// ══════════════════════════════════════════════════════════
 function tick() {
   document.getElementById('clock').textContent =
-    new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
-setInterval(tick, 1000); tick();
+setInterval(tick,1000); tick();
 
-// ══════════════════════════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════════════════════════
-async function confirmReset() {
-  if (confirm('¿Resetear TODOS los estados a verde (sin incidencia)?')) {
-    /* dead code */
-  }
-}
 async function clearLog() {
   if (confirm('Clear the activity log?')) {
-    await fetch(`${SUPA_URL}/rest/v1/issue_log?fc_name=eq.${FC_NAME}`, { method: 'DELETE', headers: SUPA_HDR });
-    log = []; renderLog();
+    await fetch(`${SUPA_URL}/rest/v1/issue_log?fc_name=eq.${FC_NAME}`, { method:'DELETE', headers:SUPA_HDR });
+    log=[]; renderLog();
   }
 }
 
-// ══════════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════════
-// Aplicar nombre FC desde config
-document.getElementById('fc-logo').textContent = FC_CONFIG.name + ' · Issue Tracker';
+function toggleFCMenu(e) { e.stopPropagation(); document.getElementById('fc-menu').classList.toggle('show'); }
+document.addEventListener('click', () => { const m=document.getElementById('fc-menu'); if(m) m.classList.remove('show'); });
+function openAddFC() { alert('To use at another FC: copy index.html + config.js, edit config.js, deploy on Render.'); }
+function closeAddFC() {}
+async function promptReset() {
+  document.getElementById('fc-menu').classList.remove('show');
+  const code = prompt('Admin code:');
+  if (code==='bcn1admin') {
+    if (confirm('Reset ALL states and blocked locations?')) {
+      await fetch(`${SUPA_URL}/rest/v1/issue_states?fc_name=eq.${FC_NAME}`, { method:'DELETE', headers:SUPA_HDR });
+      await fetch(`${SUPA_URL}/rest/v1/loc_blocked?fc_name=eq.${FC_NAME}`, { method:'DELETE', headers:SUPA_HDR });
+      state={}; blocked=new Set(); renderAll();
+      await addLog('ALL','Admin reset','resolve','');
+    }
+  } else if (code!==null) { alert('Incorrect code.'); }
+}
+
+document.getElementById('fc-logo').textContent     = FC_CONFIG.name + ' · Issue Tracker';
 document.getElementById('fc-logo-btn').textContent = FC_CONFIG.name;
 
-try {
-  buildMap();
-} catch(err) {
+try { buildMap(); } catch(err) {
   document.querySelectorAll('.map-box').forEach(b => {
-    b.innerHTML = '<div style="color:#e74c3c;padding:8px;font-size:12px;">⚠️ Error: ' + err.message + '</div>';
+    b.innerHTML = '<div style="color:#e74c3c;padding:8px;font-size:12px;">Error: ' + err.message + '</div>';
   });
   console.error('buildMap error:', err);
 }
 
-// Cargar estado desde Supabase al arrancar
 (async () => {
-  await fetchState();
-  await fetchLog();
-  renderAll();
-  renderLog();
+  await fetchState(); await fetchBlocked(); await fetchLog();
+  renderAll(); renderLog();
 })();
+
 </script>
 
 </body>

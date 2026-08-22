@@ -514,7 +514,7 @@ function addInfraItem(rowIdx) {
   renderAll();
 }
 
-function removeInfraItem(rowIdx, id) {
+async function removeInfraItem(rowIdx, id) {
   if (stateOf(id) !== 'ok') {
     if (!confirm(`"${id}" tiene una incidencia activa. ¿Eliminar igualmente?`)) return;
     delete state[id]; await upsertState(id, { status: 'ok' });

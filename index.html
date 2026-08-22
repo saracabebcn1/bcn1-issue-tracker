@@ -874,7 +874,7 @@ async function renderModalActions() {
     delBtn.className = 'abtn';
     delBtn.style.cssText = 'background:transparent;border:1px solid #5a2020;color:#c06060;width:100%;padding:9px;border-radius:6px;cursor:pointer;font-size:12px;';
     delBtn.innerHTML = '🗑 Remove this item from the list';
-    delBtn.onclick = () => {
+    delBtn.onclick = async () => {
       if (confirm(`¿Eliminar "${curId}" de la sección de infraestructura?\nSi tiene incidencia activa también se borrará.`)) {
         const infra = loadInfra();
         let removed = false;
